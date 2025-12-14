@@ -1,0 +1,8 @@
+orchestrator
+*.exe
+*.test
+/bin/
+/dist/
+.vscode/
+.idea/
+go.work
