@@ -18,5 +18,5 @@ const (
 
 const (
 	DEFAULT_CONFIG_FILE_PATH = "config.yaml"
-	DEFAULT_CONFIG_DIR_PATH  = "~/.uniflow"
+	DEFAULT_CONFIG_DIR_PATH  = ".uniflow"
 )
