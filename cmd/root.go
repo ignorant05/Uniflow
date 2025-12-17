@@ -20,35 +20,6 @@ It provides commands to initialize configurations, trigger workflows, check stat
 	Version: version,
 }
 
-var initCmd = &cobra.Command{
-	Use:   "init",
-	Short: "Initialize uniflow configuration",
-	Long: `Initialize creates the necessary configuration files and directories
-for uniflow to function properly. This should be run once before
-using other commands.
-
-Example:
-  uniflow init
-  uniflow init --verbose`,
-	Run: func(cmd *cobra.Command, args []string) {
-		if verbose {
-			fmt.Println("Running in verbose mode...")
-		}
-		fmt.Println("Initializing uniflow configuration...")
-
-		// TODO: Create actual config directory (~/.uniflow or similar)
-		// TODO: Generate config.yaml with default settings
-		// TODO: Set up logging infrastructure
-
-		fmt.Println("✓ Created config directory")
-		fmt.Println("✓ Generated default config file")
-		fmt.Println("✓ Set up logging directory")
-		fmt.Println("\nInitialization complete! You can now use Uniflow.")
-
-		// NOTE: Implementation will go here
-	},
-}
-
 var triggerCmd = &cobra.Command{
 	Use:     "trigger [workflow]",
 	Aliases: []string{"t"},
@@ -178,6 +149,7 @@ func init() {
 	rootCmd.PersistentFlags().BoolVarP(&verbose, "verbose", "v", false, "Enable verbose output for debugging")
 
 	rootCmd.SetVersionTemplate(`{{.Version}}`)
+
 	rootCmd.AddCommand(initCmd)
 	rootCmd.AddCommand(triggerCmd)
 	rootCmd.AddCommand(statusCmd)
