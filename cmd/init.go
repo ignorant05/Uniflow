@@ -11,19 +11,26 @@ import (
 	"go.yaml.in/yaml/v3"
 )
 
-var forceInit bool
+var (
+	forceInit bool
+)
 
 var initCmd = &cobra.Command{
-	Use:   "init",
-	Short: "Initialize uniflow configuration",
+	Use:     "init",
+	Aliases: []string{"i"},
+	Short:   "Initialize uniflow configuration",
 	Long: `Initialize creates the necessary configuration files and directories
 for uniflow to function properly. 
 
 Note: This should be run once before using other commands.
 
 Example:
-  uniflow init
-  uniflow init --verbose`,
+
+	# Inilialize configuration (default config and it's crusual)
+	uniflow init
+
+	# Activating verbose output 
+	uniflow i --verbose`,
 	Run: runInit,
 }
 

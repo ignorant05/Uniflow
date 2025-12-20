@@ -6,13 +6,14 @@ import (
 
 	"github.com/ignorant05/Uniflow/cmd/helpers"
 	"github.com/ignorant05/Uniflow/internal/config"
-	"github.com/ignorant05/Uniflow/internal/constants"
+	constants "github.com/ignorant05/Uniflow/internal/constants/config"
 	"github.com/spf13/cobra"
 )
 
 var (
 	profileFlag string
 	showSecrets bool
+	force       bool
 )
 
 var configCmd = &cobra.Command{
@@ -33,21 +34,32 @@ var configListCmd = &cobra.Command{
 	Long: `Display the current configuration settings.
 
 Example:
+	
+	# Show the configuration for all profiles 
 	uniflow config list
-	uniflow config list --profile prod
+
+	# Shows the configuration for a specific profile (eg. prod)
+	uniflow config list --profile my-profile
+
+	# Listing the configuration with uncensored secrets like tokens (Note: if it's longer than 8 characters, it's only show first & last 4 characters)
 	uniflow config list --show-secrets`,
 	RunE: runConfigList,
 }
 
 var configSetCmd = &cobra.Command{
-	Use:   "set <key> <value> \nNote:\n  key format: profiles.<profile>.<platform>.<field>",
-	Short: "Update a configuration value",
+	Use:     "set <key> <value> \nNote:\n  key format: profiles.<profile>.<platform>.<field>",
+	Aliases: []string{"c"},
+	Short:   "Update a configuration value",
 	Long: `Update a specific configuration value.
 
 Key format: profiles.<profile>.<platform>.<field>
 
 Examples:
+
+	# Setup the default_repository field to your/repository (eg. ignorant05/Uniflow)
 	uniflow config set profiles.default.github.default_repository your/repository
+
+	# Setup the default_platform field to github 
 	uniflow config set default_platform github`,
 	Args: cobra.ExactArgs(2),
 	RunE: runConfigSet,
@@ -61,25 +73,33 @@ var configGetCmd = &cobra.Command{
 Key format: profiles.<profile>.<platform>.<field>
 
 Examples:
+
+	# Retrieve the value of the default_repository field 
 	uniflow config get profiles.default.github.default_repository 
+
+	# Retrieve the value of the default_platform field
 	uniflow config get default_platform`,
 	Args: cobra.ExactArgs(1),
 	RunE: runConfigGet,
 }
 
 var configValidateCmd = &cobra.Command{
-	Use:   "validate",
-	Short: "Validate configuration file",
+	Use:     "validate",
+	Aliases: []string{"v"},
+	Short:   "Validate configuration file",
 	Long: `Check if the configuration file is valid and all required fields are set.
 
 Example:
+	
+	# Validate the configuration file
 	uniflow config validate`,
 	RunE: runConfigValidate,
 }
 
 func init() {
 	configListCmd.Flags().StringVarP(&profileFlag, "profile", "p", "default", "Profile to display")
-	configListCmd.Flags().BoolVar(&showSecrets, "show-secrets", false, "Show sensitive values (tokens)")
+	configListCmd.Flags().BoolVarP(&showSecrets, "show-secrets", "s", false, "Show sensitive values (tokens)")
+	configListCmd.Flags().BoolVarP(&force, "force", "f", false, "Show full sensitive values even if it's longer than 8 characters in length")
 
 	configCmd.AddCommand(configListCmd)
 	configCmd.AddCommand(configSetCmd)
@@ -110,7 +130,7 @@ func runConfigList(cmd *cobra.Command, args []string) error {
 		fmt.Println("\n❯❯❯ GitHub:")
 		fmt.Printf("  Base URL:     %s\n", profile.Github.BaseURL)
 		fmt.Printf("  Default Repository: %s\n", helpers.ValueOrEmpty(profile.Github.DefaultRepository))
-		fmt.Printf("  Token:        %s\n", helpers.MaskSecret(profile.Github.Token, showSecrets))
+		fmt.Printf("  Token:        %s\n", helpers.MaskSecret(profile.Github.Token, showSecrets, force))
 	}
 
 	fmt.Println()
@@ -179,6 +199,7 @@ func runConfigGet(cmd *cobra.Command, args []string) error {
 
 func runConfigValidate(cmd *cobra.Command, args []string) error {
 	fmt.Println("❯❯❯ Validating...")
+
 	cfg, err := config.Load()
 	if err != nil {
 		return err
@@ -194,6 +215,7 @@ func runConfigValidate(cmd *cobra.Command, args []string) error {
 
 func getProfileNames(cfg *config.Config) []string {
 	profiles := cfg.Profiles
+
 	names := make([]string, 0, len(profiles))
 	for name := range profiles {
 		names = append(names, name)
