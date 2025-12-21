@@ -3,7 +3,7 @@ package config
 import (
 	"fmt"
 
-	"github.com/ignorant05/Uniflow/internal/constants"
+	"github.com/ignorant05/Uniflow/cmd/constants"
 )
 
 // The main configuration structure
@@ -41,7 +41,7 @@ func (cfg *Config) GetProfile(name string) (*Profile, error) {
 
 	profile, exists := cfg.Profiles[name]
 	if !exists {
-		return nil, fmt.Errorf("Error: No profile named %s registered, please re-check the username and try again...", name)
+		return nil, fmt.Errorf("<?> Error: No profile named %s registered, please re-check the username and try again...", name)
 	}
 
 	return profile, nil
@@ -51,10 +51,10 @@ func (p *Profile) GetPlatform(platformName string) (interface{}, error) {
 	switch platformName {
 	case constants.DEFAULT_CONFIG_PLATFORM:
 		if p.Github == nil {
-			return nil, fmt.Errorf("Error: Github configuration not found for this profile")
+			return nil, fmt.Errorf("<?> Error: Github configuration not found for this profile")
 		}
 	default:
-		return nil, fmt.Errorf("Error: Unsupported platform: %s", platformName)
+		return nil, fmt.Errorf("<?> Error: Unsupported platform: %s", platformName)
 	}
 
 	return nil, nil

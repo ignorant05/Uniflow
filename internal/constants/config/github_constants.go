@@ -1,0 +1,6 @@
+package constants
+
+const (
+	GITHUB_TOKEN_ENV_VAR_NAME = "GITHUB_TOKEN"
+	GITHUB_LOGS_MAX_INDIRECT  = 5
+)

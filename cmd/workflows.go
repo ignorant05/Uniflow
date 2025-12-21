@@ -1,0 +1,122 @@
+package cmd
+
+import (
+	"fmt"
+
+	gh "github.com/google/go-github/v57/github"
+	"github.com/ignorant05/Uniflow/configs/github"
+	"github.com/spf13/cobra"
+)
+
+var (
+	wfWithDispatch bool
+)
+
+var workflowsCmd = &cobra.Command{
+	Use:     "workflows",
+	Aliases: []string{"wf"},
+	Short:   "List available workflows in the repository",
+	Long: `List all GitHub Actions workflows in the configured repository.
+
+This helps you see which workflows are available to trigger.
+
+Examples:
+	
+	# Show all workflows for the configured repo
+	uniflow workflows
+
+	# Show the workflows related to a specific profile 
+	uniflow workflows --profile my-profile (eg. prod)
+
+	# Activate verbose output
+	uniflow wf -v`,
+	RunE: runWorkflows,
+}
+
+func init() {
+	workflowsCmd.Flags().StringVarP(&profileName, "profile", "p", "default", "Config profile to use")
+	workflowsCmd.Flags().StringVarP(&profileName, "profile", "p", "default", "Config profile to use")
+	workflowsCmd.Flags().BoolVarP(&wfWithDispatch, "with-dispatch", "w", false, "Show only workflows with 'workflow_dispatch' trigger")
+	rootCmd.AddCommand(workflowsCmd)
+}
+
+func runWorkflows(cmd *cobra.Command, args []string) error {
+	if verbose {
+		fmt.Println("<!> Info: Verbose mode enabled")
+		fmt.Printf("   Profile: %s\n", profileName)
+	}
+
+	fmt.Println("❯❯❯ Listing available workflows...")
+
+	client, err := github.NewClientFromConfig(profileName)
+	if err != nil {
+		return err
+	}
+
+	owner, repo, err := client.GetDefaultRepository()
+	if err != nil {
+		return err
+	}
+
+	if verbose {
+		fmt.Printf("<.> Info: Repository: %s/%s\n", owner, repo)
+	}
+
+	var workflows []*gh.Workflow
+
+	if !wfWithDispatch {
+		workflows, err = client.ListWorkflows(owner, repo)
+		if err != nil {
+			return err
+		}
+	} else {
+		workflows, err = client.ListWorkflowsWithDispatchOnly(owner, repo)
+		if err != nil {
+			return err
+		}
+	}
+
+	if len(workflows) == 0 {
+		fmt.Println("<?> No workflows found in this repository.")
+		fmt.Println("")
+		fmt.Println("<.> Info: To add a workflow:")
+		fmt.Printf("   1. Create .github/workflows/ directory in %s/%s\n", owner, repo)
+		fmt.Println("   2. Add a workflow file (e.g., deploy.yml)")
+		fmt.Println("   3. Include 'workflow_dispatch:' trigger")
+		return nil
+	}
+
+	fmt.Printf("\n<✓> Found %d workflow(s):\n\n", len(workflows))
+
+	for idx, wf := range workflows {
+		fmt.Printf("%d - workflow: %s\n", idx+1, wf.GetName())
+		fmt.Printf("   - File: %s\n", wf.GetPath())
+		fmt.Printf("   - State: %s\n", wf.GetState())
+
+		hasDispatch := false
+		if verbose {
+			fmt.Printf("   - ID: %d\n", wf.GetID())
+			fmt.Printf("   - URL: %s\n", wf.GetHTMLURL())
+		}
+
+		if !hasDispatch && verbose {
+			fmt.Println("<!> Warning: Check if this workflow has 'workflow_dispatch' trigger")
+		}
+
+		fmt.Println()
+	}
+
+	fmt.Println("<.> Info: Trigger a workflow with:")
+	if len(workflows) > 0 {
+		firstWorkflow := workflows[0].GetPath()
+		fileName := firstWorkflow
+
+		if len(firstWorkflow) > len(".github/workflows/") {
+			fileName = firstWorkflow[len(".github/workflows/"):]
+		}
+
+		fmt.Printf("   uniflow trigger %s\n", fileName)
+	}
+
+	return nil
+}

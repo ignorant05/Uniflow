@@ -3,13 +3,13 @@ package credentials
 import (
 	"fmt"
 
-	"github.com/ignorant05/Uniflow/internal/constants"
+	constants "github.com/ignorant05/Uniflow/internal/constants/credentials"
 	"github.com/zalando/go-keyring"
 )
 
 func Store(key, val string) error {
 	if err := keyring.Set(constants.SERVICE, key, val); err != nil {
-		return fmt.Errorf("Error: Failed to store credentials in keyring\nError: %w\n", err)
+		return fmt.Errorf("<?> Error: Failed to store credentials in keyring\nError: %w\n", err)
 	}
 
 	return nil
@@ -19,9 +19,9 @@ func Get(key string) (string, error) {
 	val, err := keyring.Get(constants.SERVICE, key)
 	if err != nil {
 		if err == keyring.ErrNotFound {
-			return "", fmt.Errorf("Error: Credential '%s' not found in keyring", key)
+			return "", fmt.Errorf("<?> Error: Credential '%s' not found in keyring", key)
 		}
-		return "", fmt.Errorf("Error: Failed to retrieve credential '%s' from keyring", key)
+		return "", fmt.Errorf("<?> Error: Failed to retrieve credential '%s' from keyring", key)
 	}
 
 	return val, nil
@@ -31,9 +31,9 @@ func Delete(key string) error {
 	err := keyring.Delete(constants.SERVICE, key)
 	if err != nil {
 		if err == keyring.ErrNotFound {
-			return fmt.Errorf("Error: Credential '%s' not found in keyring", key)
+			return fmt.Errorf("<?> Error: Credential '%s' not found in keyring", key)
 		}
-		return fmt.Errorf("Error: Failed to delete credential '%s' from keyring", key)
+		return fmt.Errorf("<?> Error: Failed to delete credential '%s' from keyring", key)
 	}
 
 	return nil
