@@ -71,7 +71,7 @@ func TestClientWithoutToken(t *testing.T) {
 // Make sure to set an env variable called "GITHUB_TOKEN" for this one before launching it or i'll fail
 // use export GITHUB_TOKEN="ur token here"
 func TestClientWithTokenFromEnv(t *testing.T) {
-	os.Setenv("GITHUB_TOKEN", "REMOVED")
+	os.Setenv("GITHUB_TOKEN", "")
 
 	token := os.Getenv("GITHUB_TOKEN")
 
@@ -160,75 +160,6 @@ func TestDefaultRepo_Failure(t *testing.T) {
 	assert.Empty(t, owner)
 	assert.Empty(t, repo)
 }
-
-// func setupMockGitHubServer(t *testing.T) (*httptest.Server, *github.Client) {
-// 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-// 		if r.Header.Get("Authorization") == "" {
-// 			w.WriteHeader(http.StatusUnauthorized)
-// 			return
-// 		}
-//
-// 		switch r.URL.Path {
-// 		case "/repos/owner/repo/actions/workflows":
-// 			workflows := gh.Workflows{
-// 				TotalCount: gh.Int(2),
-// 				Workflows: []*gh.Workflow{
-// 					{
-// 						ID:   gh.Int64(1),
-// 						Name: gh.String("CI"),
-// 						Path: gh.String(".github/workflows/ci.yml"),
-// 					},
-// 					{
-// 						ID:   gh.Int64(2),
-// 						Name: gh.String("Deploy"),
-// 						Path: gh.String(".github/workflows/deploy.yml"),
-// 					},
-// 				},
-// 			}
-//
-// 			w.Header().Set("Content-Type", "application/json")
-// 			json.NewEncoder(w).Encode(workflows)
-// 		case "/repos/owner/repo/actions/workflows/ci.yml/dispatches":
-// 			if r.Method != http.MethodPost {
-// 				w.WriteHeader(http.StatusMethodNotAllowed)
-// 				return
-// 			}
-// 			w.WriteHeader(http.StatusNoContent)
-// 		case "/repos/owner/repo/actions/runs/123456":
-// 			run := gh.WorkflowRun{
-// 				ID:         gh.Int64(123456),
-// 				Status:     gh.String("completed"),
-// 				Conclusion: gh.String("success"),
-// 				HTMLURL:    gh.String("https://github.com/owner/repo/actions/runs/123456"),
-// 			}
-//
-// 			w.Header().Set("Content-Type", "application/json")
-// 			json.NewEncoder(w).Encode(run)
-//
-// 		default:
-// 			w.WriteHeader(http.StatusNotFound)
-// 		}
-//
-// 	}))
-//
-// 	cfg := &config.GithubConfig{
-// 		Token:             "random-gibbrich-as-token",
-// 		DefaultRepository: "ignorant05/Uniflow",
-// 		BaseURL:           server.URL,
-// 	}
-//
-// 	ctx := context.Background()
-//
-// 	client := &github.Client{
-// 		Client: gh.NewClient(nil),
-// 		Ctx:    ctx,
-// 		Config: cfg,
-// 	}
-//
-// 	client.Client.BaseURL, _ = url.Parse(server.URL + "/")
-//
-// 	return server, client
-// }
 
 // Testing ListWorkflows func with valid setup
 func TestListWorkflows_Success(t *testing.T) {
