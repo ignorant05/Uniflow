@@ -1,0 +1,192 @@
+package cmd
+
+import (
+	"fmt"
+	"os"
+	"os/signal"
+	"strings"
+	"syscall"
+
+	"github.com/ignorant05/Uniflow/configs/github"
+	errorhandling "github.com/ignorant05/Uniflow/internal/errorHandling"
+	"github.com/ignorant05/Uniflow/internal/logs"
+	"github.com/spf13/cobra"
+)
+
+var (
+	runID        int64
+	jobName      string
+	followLogs   bool
+	tailLines    int
+	downloadOnly bool
+
+	noColor      bool
+	platformFlag string
+)
+
+var logsCmd = &cobra.Command{
+	Use:     "logs [workflow]",
+	Aliases: []string{"l"},
+	Short:   "View workflow execution logs",
+	Long: `Logs displays the execution logs for a specified workflow.
+You can use this to debug issues or monitor workflow progress.
+
+
+Features:
+	• Real-time log streaming with --follow
+	• Colored output for different log levels
+	• Timestamps for each log line
+	• Tail support to limit output
+	• Graceful handling of Ctrl+C
+	• Auto-detection of run completion
+
+Example:
+	# Latest run logs
+	uniflow logs deploy.yml
+
+	# Specific run with streaming
+	uniflow logs deploy.yml --run-id 123456 --follow
+
+	# Last 100 lines only
+	uniflow logs deploy.yml --tail 100
+
+	# Without colors
+	uniflow logs deploy.yml --no-color
+
+	# Specific job
+	uniflow logs deploy.yml --job build`,
+	Args: cobra.MaximumNArgs(1),
+	Run:  runLogsCmd,
+}
+
+func init() {
+	logsCmd.Flags().Int64Var(&runID, "run-id", 0, "Specific run ID")
+	logsCmd.Flags().StringVarP(&jobName, "job", "j", "", "Specific job name")
+	logsCmd.Flags().BoolVarP(&followLogs, "follow", "f", false, "Follow logs (not implemented)")
+	logsCmd.Flags().IntVarP(&tailLines, "tail", "t", 0, "Show last N lines (0 = all)")
+	logsCmd.Flags().BoolVarP(&downloadOnly, "download-only", "d", false, "Just show download URL")
+	logsCmd.Flags().BoolVar(&noColor, "no-color", false, "Disable colored output")
+	logsCmd.Flags().StringVarP(&platformFlag, "platform", "p", "github", "Platform (github, jenkins, gitlab, circleci). The default is github")
+
+	rootCmd.AddCommand(logsCmd)
+}
+
+func runLogsCmd(cmd *cobra.Command, args []string) {
+	if verbose {
+		fmt.Println("<!> Info: Verbose mode enabled")
+	}
+
+	if platformFlag != "github" {
+		fmt.Printf("<?> Error: Platform '%s' not yet supported. Currently only 'github' is available.\n", platformFlag)
+		fmt.Println("<!> Warning: Jenkins, GitLab, CircleCI aren't supported yet.\n<.> Info: Feel free to contribute if you want them in please.")
+		return
+	}
+
+	client, err := github.NewClientFromConfig(profileName)
+	if err != nil {
+		errorhandling.HandleError(err)
+		return
+	}
+
+	owner, repo, err := client.GetDefaultRepository()
+	if err != nil {
+		errorhandling.HandleError(err)
+		return
+	}
+
+	if verbose {
+		fmt.Printf("<.> Info: Repository: %s/%s\n", owner, repo)
+		fmt.Printf("<.> Info: Platform: %s\n", platformFlag)
+	}
+
+	targetRunID, workflowName, err := resolveRunID(client, owner, repo, args)
+	if err != nil {
+		errorhandling.HandleError(err)
+		return
+	}
+
+	if workflowName != "" {
+		fmt.Printf("❯❯❯ Fetching logs for workflow: %s (Run #%d)\n\n", workflowName, targetRunID)
+	} else {
+		fmt.Printf("❯❯❯ Fetching logs for run ID: %d\n\n", targetRunID)
+	}
+
+	streamer := logs.NewStreamer(
+		client,
+		owner,
+		repo,
+		targetRunID,
+		logs.StreamerOptions{
+			Follow:    followLogs,
+			TailLines: tailLines,
+			Colorize:  !noColor,
+		})
+
+	setupGracefulShutdown(streamer)
+
+	if err := streamer.Stream(); err != nil {
+		errorhandling.HandleError(err)
+		return
+	}
+
+}
+
+func resolveRunID(client *github.Client, owner, repo string, args []string) (int64, string, error) {
+	if runID != 0 {
+		return runID, "", nil
+	}
+
+	if len(args) > 0 {
+		var (
+			workflowName string
+			workflowID   int64
+		)
+
+		workflowFile = args[0]
+
+		workflows, err := client.ListWorkflows(owner, repo)
+		if err != nil {
+			return 0, "", err
+		}
+
+		for _, wf := range workflows {
+			if strings.HasSuffix(wf.GetPath(), workflowFile) {
+				workflowID, workflowName = wf.GetID(), wf.GetName()
+				break
+			}
+		}
+
+		if workflowID == 0 {
+			return 0, "", fmt.Errorf("<?> Error: Invalid workflow.\n")
+		}
+
+		logsURL, err := client.GetWorkflowRunLogs(owner, repo, workflowID)
+		if err != nil {
+			return 0, "", err
+		}
+
+		if downloadOnly {
+			logs.DownloadLogs(logsURL)
+		}
+
+		runs, err := client.GetWorkflowRuns(owner, repo, workflowID)
+		if err != nil || len(runs) <= 0 {
+			return 0, "", fmt.Errorf("<?> Error: cannot retrieve workflow runs.\n<?> Workflow: %s\n", workflowName)
+		}
+
+		return runs[0].GetID(), workflowName, nil
+	}
+
+	return 0, "", fmt.Errorf("<?> Error: Please specify either a workflow name or use --run-id")
+}
+
+func setupGracefulShutdown(s *logs.Streamer) {
+	sigChan := make(chan os.Signal, 1)
+	signal.Notify(sigChan, os.Interrupt, syscall.SIGTERM)
+
+	go func() {
+		<-sigChan
+		fmt.Println("\n\n<!> Warning: Received interrupt signal...")
+		s.Stop()
+	}()
+}
