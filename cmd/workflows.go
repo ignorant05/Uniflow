@@ -21,7 +21,6 @@ var workflowsCmd = &cobra.Command{
 This helps you see which workflows are available to trigger.
 
 Examples:
-	
 	# Show all workflows for the configured repo
 	uniflow workflows
 
@@ -34,7 +33,6 @@ Examples:
 }
 
 func init() {
-	workflowsCmd.Flags().StringVarP(&profileName, "profile", "p", "default", "Config profile to use")
 	workflowsCmd.Flags().StringVarP(&profileName, "profile", "p", "default", "Config profile to use")
 	workflowsCmd.Flags().BoolVarP(&wfWithDispatch, "with-dispatch", "w", false, "Show only workflows with 'workflow_dispatch' trigger")
 	rootCmd.AddCommand(workflowsCmd)
