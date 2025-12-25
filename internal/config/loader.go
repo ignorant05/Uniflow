@@ -11,8 +11,21 @@ import (
 	"github.com/spf13/viper"
 )
 
+// Regex pattern
 var envVarRegex = regexp.MustCompile(`\$\{([^}]+)\}`)
 
+// Load loads reads and parses configuration file
+//
+// Parameters:
+//   - None
+//
+// Error possible causes:
+//   - configuration file not found
+//   - env vars not found
+//   - internal error (failed to read/parse config file)
+//
+// Examples:
+// config, err := Load()
 func Load() (*Config, error) {
 	configPath, err := helpers.GetConfigPath()
 	if err != nil {
@@ -20,7 +33,7 @@ func Load() (*Config, error) {
 	}
 
 	if _, err := os.Stat(configPath); os.IsNotExist(err) {
-		return nil, fmt.Errorf("<?> Error: Configuration file was not found at %s.\nPlease run: 'uniflow init' to create it.", configPath)
+		return nil, fmt.Errorf("<?> Error: Configuration file was not found at %s.\nPlease run: 'uniflow init' to create it.\n\n", configPath)
 	}
 
 	v := viper.New()
@@ -28,21 +41,28 @@ func Load() (*Config, error) {
 	v.SetConfigType("yaml")
 
 	if err := v.ReadInConfig(); err != nil {
-		return nil, fmt.Errorf("<?> Error: Failed to read configuration file\nError: %w", err)
+		return nil, fmt.Errorf("<?> Error: Failed to read configuration file\nError: %w\n\n", err)
 	}
 
 	var cfg Config
 	if err := v.Unmarshal(&cfg); err != nil {
-		return nil, fmt.Errorf("<?> Error: Failed to parse configuration file\nError: %w", err)
+		return nil, fmt.Errorf("<?> Error: Failed to parse configuration file\nError: %w\n\n", err)
 	}
 
 	if err := resolveEnvVars(&cfg); err != nil {
-		return nil, fmt.Errorf("<?> Error: Failed to resolve environment variables\nError: %w", err)
+		return nil, fmt.Errorf("<?> Error: Failed to resolve environment variables\nError: %w\n\n", err)
 	}
 
 	return &cfg, nil
 }
 
+// resolveEnvVars resolves env vars
+//
+// Parameters:
+//   - cfg: configuration
+//
+// Examples:
+// err := resolveEnvVars(cfg)
 func resolveEnvVars(cfg *Config) error {
 	for profileName, profile := range cfg.Profiles {
 		if profile.Github != nil {
@@ -57,6 +77,13 @@ func resolveEnvVars(cfg *Config) error {
 	return nil
 }
 
+// resolveEnvVars resolves env vars
+//
+// Parameters:
+//   - value: replaces value
+//
+// Examples:
+// err := resolveEnvVars("something")
 func resolveEnvVar(value string) string {
 	return envVarRegex.ReplaceAllStringFunc(value, func(match string) string {
 		varName := match[2 : len(value)-1]
@@ -69,6 +96,16 @@ func resolveEnvVar(value string) string {
 	})
 }
 
+// Save configuration
+//
+// Parameters:
+//   - cfg: configuration struct
+//
+// Error possible causes:
+//   - internal error (failed to save config file)
+//
+// Examples:
+// err := Save(cfg)
 func Save(cfg *Config) error {
 	configPath, err := helpers.GetConfigPath()
 	if err != nil {
@@ -84,12 +121,25 @@ func Save(cfg *Config) error {
 	v.Set(constants.PROFILES, cfg.Profiles)
 
 	if err := v.WriteConfig(); err != nil {
-		return fmt.Errorf("<?> Error : Failed to save configuration file.\nError: %w", err)
+		return fmt.Errorf("<?> Error : Failed to save configuration file.\nError: %w\n\n", err)
 	}
 
 	return nil
 }
 
+// Update updates key with val
+//
+// Parameters:
+//   - key: field name
+//   - val: field value
+//
+// Error possible causes:
+//   - configuration file not found
+//   - env vars not found
+//   - internal error (failed to read/parse config file)
+//
+// Examples:
+// err := Update("token", "gibbrich string")
 func Update(key, val string) error {
 	cfg, err := Load()
 	if err != nil {
@@ -98,7 +148,7 @@ func Update(key, val string) error {
 
 	parts := strings.Split(key, ".")
 	if len(parts) < 2 {
-		return fmt.Errorf("<?> Error: Invalid config key format. Use: profiles.<profile>.<platform>.<field>")
+		return fmt.Errorf("<?> Error: Invalid config key format. Use: profiles.<profile>.<platform>.<field>\n\n")
 	}
 
 	switch parts[0] {
@@ -107,7 +157,7 @@ func Update(key, val string) error {
 
 	case constants.PROFILES:
 		if len(parts) < 4 {
-			return fmt.Errorf("invalid profile key format. Use: profiles.<profile>.<platform>.<field>")
+			return fmt.Errorf("invalid profile key format. Use: profiles.<profile>.<platform>.<field>\n\n")
 		}
 
 		profileName, platform, field := parts[1], parts[2], parts[3]
@@ -122,12 +172,27 @@ func Update(key, val string) error {
 		}
 
 	default:
-		return fmt.Errorf("<?> Error: Unknown config section: %s", parts[0])
+		return fmt.Errorf("<?> Error: Unknown config section: %s\n\n", parts[0])
 	}
 
 	return Save(cfg)
 }
 
+// updatePlatformField updates platform field
+//
+// Parameters:
+//   - profile: profile object
+//   - platform: platform name
+//   - field: field name
+//   - field value: val name
+//
+// Error possible causes:
+//   - configuration file not found
+//   - env vars not found
+//   - internal error (failed to read/parse config file)
+//
+// Examples:
+// err := updatePlatformField(profile, "github", "token", "gibbrich string")
 func updatePlatformField(profile *Profile, platform, field, val string) error {
 	switch platform {
 	case constants.GITHUB:
@@ -143,10 +208,10 @@ func updatePlatformField(profile *Profile, platform, field, val string) error {
 		case constants.BASE_URL_FIELD:
 			profile.Github.BaseURL = val
 		default:
-			return fmt.Errorf("<?> Error: Unknown github field: %s", field)
+			return fmt.Errorf("<?> Error: Unknown github field: %s\n\n", field)
 		}
 	default:
-		return fmt.Errorf("<?> Error: Unsupported platform: %s", platform)
+		return fmt.Errorf("<?> Error: Unsupported platform: %s\n\n", platform)
 	}
 
 	return nil

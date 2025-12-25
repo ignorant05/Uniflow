@@ -16,10 +16,22 @@ type HttpClient interface {
 	Get(url string) (*http.Response, error)
 }
 
+// Default client with default field timeout
 var DefaultClient = &http.Client{
 	Timeout: 30 * time.Second,
 }
 
+// readLogs reads and downloads logs
+//
+// Parameters :
+//   - logsUrl: logs url
+//
+// Errors possible causes:
+//   - invalid url
+//   - internal error
+//
+// Example:
+// body, err := s.readLogs(logsUrl)
 func (s *Streamer) readLogs(logsUrl string) (string, error) {
 	if logsUrl == "" {
 		return "", fmt.Errorf("<?> Error: Invalid URL.\n")
@@ -44,6 +56,17 @@ func (s *Streamer) readLogs(logsUrl string) (string, error) {
 	return string(body), nil
 }
 
+// DownloadLogs reads and downloads logs
+//
+// Parameters :
+//   - logsUrl: logs url
+//
+// Errors possible causes:
+//   - invalid url
+//   - internal error
+//
+// Example:
+// body, err := DownloadLogs(logsUrl)
 func DownloadLogs(logsUrl string) error {
 	if logsUrl == "" {
 		return fmt.Errorf("<?> Error: Invalid URL.\n")
@@ -79,7 +102,7 @@ func DownloadLogs(logsUrl string) error {
 		return fmt.Errorf("<?> Error: Failed to parse logs data.\n<?> Error: %w\n", err)
 	}
 
-	fmt.Printf("<✓> Downloaded %d KB of logs\n\n", len(data)/1024)
+	fmt.Printf("✓ Downloaded %d KB of logs\n\n", len(data)/1024)
 
 	return nil
 }

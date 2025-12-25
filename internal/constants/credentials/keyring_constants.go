@@ -1,6 +1,7 @@
 package constants
 
 const (
+	// Default service name
 	SERVICE = "uniflow"
 )
 

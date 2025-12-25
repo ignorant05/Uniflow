@@ -18,11 +18,25 @@ type Client struct {
 	Config *config.GithubConfig
 }
 
+// NewClient creates new client from configuration.
+//
+// Parameters:
+//   - ctx: context
+//   - cfg: user's github configuration
+//
+// Returns an error if:
+//   - invalid configuration
+//   - github client creation failure
+//   - invalid enterprise baseURL
+//
+// Example:
+//
+//	client, err, err := NewClient(context.Background(), cfg)
 func NewClient(ctx context.Context, cfg *config.GithubConfig) (*Client, error) {
 	if cfg.Token == "" {
 		cfg.Token = os.Getenv(constants.GITHUB_TOKEN_ENV_VAR_NAME)
 		if cfg.Token == "" {
-			return nil, fmt.Errorf("<?> Error: No environment variable named %s found.\n<.> Please verify your ~/.zshrc (or ~/.bashrc) file.\n", constants.GITHUB_TOKEN_ENV_VAR_NAME)
+			return nil, fmt.Errorf("<?> Error: No environment variable named %s found.\n<.> Please verify your ~/.zshrc (or ~/.bashrc) file.\n\n", constants.GITHUB_TOKEN_ENV_VAR_NAME)
 		}
 	}
 
@@ -35,7 +49,7 @@ func NewClient(ctx context.Context, cfg *config.GithubConfig) (*Client, error) {
 
 		client, err = github.NewClient(tc).WithEnterpriseURLs(cfg.BaseURL, cfg.BaseURL)
 		if err != nil {
-			return nil, fmt.Errorf("<?>Error: Failed to create enterprise client.\n<?> Error: %w.\n", err)
+			return nil, fmt.Errorf("<?>Error: Failed to create enterprise client.\n<?> Error: %w.\n\n", err)
 		}
 	}
 
@@ -46,17 +60,41 @@ func NewClient(ctx context.Context, cfg *config.GithubConfig) (*Client, error) {
 		nil
 }
 
+// NewClientFromProfile creates new client from profile configuration.
+//
+// Parameters:
+//   - ctx: context
+//   - profile: user's profile configuration
+//
+// Returns an error if:
+//   - invalid profile configuration
+//   - github client creation failure (github isn't configured for this profile error)
+//
+// Example:
+//
+//	client, err, err := NewClientFromProfile(context.Background(), profile)
 func NewClientFromProfile(ctx context.Context, profile *config.Profile) (*Client, error) {
 	if profile.Github == nil {
-		return nil, fmt.Errorf("<?> Error: Github isn't configured for this profile.\n")
+		return nil, fmt.Errorf("<?> Error: Github isn't configured for this profile.\n\n")
 	}
 
 	return NewClient(ctx, profile.Github)
 }
 
+// GetDefaultRepository retrieves owner and repo for the current configuration.
+//
+// Parameters:
+//   - None
+//
+// Returns an error if:
+//   - no default repo is configured
+//
+// Example:
+//
+//	owner, repo, err := client.GetDefaultRepository()
 func (c *Client) GetDefaultRepository() (owner, repo string, err error) {
 	if c.Config.DefaultRepository == "" {
-		return "", "", fmt.Errorf("<?> Error: No default repository configured.\n")
+		return "", "", fmt.Errorf("<?> Error: No default repository configured.\n\n")
 	}
 
 	return helpers.ParseRepository(c.Config.DefaultRepository)

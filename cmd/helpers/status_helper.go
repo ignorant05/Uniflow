@@ -5,6 +5,10 @@ import (
 	"time"
 )
 
+// FormatStatus helper Capitalises status string for appropriate output.
+//
+// Parameters:
+//   - status: status string
 func FormatStatus(status string) string {
 	switch status {
 	case "queued":
@@ -20,6 +24,10 @@ func FormatStatus(status string) string {
 	}
 }
 
+// FormatConclusion helper formats conclusion string for appropriate output.
+//
+// Parameters:
+//   - concl: conclusion string
 func FormatConclusion(conc string) string {
 	switch conc {
 	case "success":
@@ -43,6 +51,10 @@ func FormatConclusion(conc string) string {
 	}
 }
 
+// FormatTime helper formats time for appropriate output.
+//
+// Parameters:
+//   - time: timestamp
 func FormatTime(t time.Time) string {
 	now := time.Now()
 	diff := now.Sub(t)

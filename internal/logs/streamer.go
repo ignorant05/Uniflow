@@ -14,8 +14,10 @@ import (
 	"github.com/ignorant05/Uniflow/internal/helpers"
 )
 
+// Log Level type
 type LogLevel int
 
+// Log level types
 const (
 	LevelDebug LogLevel = iota
 	LevelInfo
@@ -24,12 +26,7 @@ const (
 	LevelSuccess
 )
 
-const (
-	PollInterval    = 3 * time.Second
-	MaxPollAttempts = 600
-	JobCheckIntervl = 5 * time.Second
-)
-
+// Streaming options struct
 type StreamerOptions struct {
 	Follow    bool
 	TailLines int
@@ -37,6 +34,7 @@ type StreamerOptions struct {
 	Colorize  bool
 }
 
+// Streamer struct
 type Streamer struct {
 	client     *github.Client
 	ctx        context.Context
@@ -54,6 +52,14 @@ type Streamer struct {
 	seenJobs    map[int64]bool
 }
 
+// NewStreamer creates new streamer
+//
+// Parameters:
+//   - client: github client
+//   - owner: owner name
+//   - repo: repository name
+//   - runID: workflow runID
+//   - opts: Streamer options
 func NewStreamer(client *github.Client, owner, repo string, runID int64, opts StreamerOptions) *Streamer {
 	ctx, cancel := context.WithCancel(context.Background())
 
@@ -72,6 +78,7 @@ func NewStreamer(client *github.Client, owner, repo string, runID int64, opts St
 	}
 }
 
+// Stream function streamns workflow (search by ID)
 func (s *Streamer) Stream() error {
 	run, _, err := s.client.Actions.GetWorkflowRunByID(s.ctx, s.owner, s.repo, s.runID)
 	if err != nil {
@@ -87,15 +94,25 @@ func (s *Streamer) Stream() error {
 	return s.streamOnce(run)
 }
 
+// streamOnce displays logs
+//
+// Parameters :
+//   - run: github workflow run
+//
+// Errors possible causes:
+//   - no jobs for this workflow
+//
+// Examples:
+// err := s.streamOnce(run)
 func (s *Streamer) streamOnce(run *gh.WorkflowRun) error {
 	if run.GetStatus() == "completed" {
 		fmt.Println("  Waiting for workflow to complete.")
 
-		for range MaxPollAttempts {
+		for range constants.MaxPollAttempts {
 			select {
 			case <-s.ctx.Done():
 				return nil
-			case <-time.After(PollInterval):
+			case <-time.After(constants.PollInterval):
 				var err error
 				run, _, err := s.client.Actions.GetWorkflowRunByID(s.ctx, s.owner, s.repo, s.runID)
 				if err != nil {
@@ -110,10 +127,20 @@ func (s *Streamer) streamOnce(run *gh.WorkflowRun) error {
 	return s.fetchAndDisplayLogs()
 }
 
+// streamWithFollow displays logs in real time
+//
+// Parameters :
+//   - run: github workflow run
+//
+// Errors possible causes:
+//   - no jobs for this workflow
+//
+// Examples:
+// err := s.streamWithFollow(run)
 func (s *Streamer) streamWithFollow(run *gh.WorkflowRun) error {
 	fmt.Println("  Following logs (press Ctrl+C to stop)...")
 
-	ticker := time.NewTicker(PollInterval)
+	ticker := time.NewTicker(constants.PollInterval)
 	defer ticker.Stop()
 
 	seenLines := make(map[string]bool)
@@ -154,6 +181,17 @@ func (s *Streamer) streamWithFollow(run *gh.WorkflowRun) error {
 	}
 }
 
+// streamJobLogs fetches and displays workflow job logs in a formatted and colorized manner
+//
+// Parameters :
+//   - job: workflow job
+//   - seenLines: traversed log lines
+//
+// Errors possible causes:
+//   - can't read logs
+//
+// Examples:
+// err := s.streamJobLogs(run)
 func (s *Streamer) streamJobLogs(job *gh.WorkflowJob, seenLines map[string]bool) error {
 	if job.GetStatus() == "queued" ||
 		job.GetStatus() == "waiting" {
@@ -165,7 +203,7 @@ func (s *Streamer) streamJobLogs(job *gh.WorkflowJob, seenLines map[string]bool)
 		s.seenJobs[job.GetID()] = true
 	}
 
-	logURL, _, err := s.client.Actions.GetWorkflowJobLogs(s.ctx, s.owner, s.repo, job.GetID(), constants.MAC_REDIRECTS)
+	logURL, _, err := s.client.Actions.GetWorkflowJobLogs(s.ctx, s.owner, s.repo, job.GetID(), constants.MAX_REDIRECTS)
 	if err != nil {
 		return err
 	}
@@ -193,6 +231,16 @@ func (s *Streamer) streamJobLogs(job *gh.WorkflowJob, seenLines map[string]bool)
 	return nil
 }
 
+// fetchAndDisplayLogs fetch and displays formatted and colorized logs
+//
+// Parameters :
+//   - None
+//
+// Errors possible causes:
+//   - can't read logs
+//
+// Examples:
+// err := s.fetchAndDisplayLogs()
 func (s *Streamer) fetchAndDisplayLogs() error {
 	jobs, _, err := s.client.Actions.ListWorkflowJobs(s.ctx, s.owner, s.repo, s.runID, nil)
 	if err != nil {
@@ -202,12 +250,12 @@ func (s *Streamer) fetchAndDisplayLogs() error {
 	for _, job := range jobs.Jobs {
 		s.printJobHeader(job)
 
-		logURL, _, err := s.client.Actions.GetWorkflowJobLogs(s.ctx, s.owner, s.repo, job.GetID(), constants.MAC_REDIRECTS)
+		logURL, _, err := s.client.Actions.GetWorkflowJobLogs(s.ctx, s.owner, s.repo, job.GetID(), constants.MAX_REDIRECTS)
 		if err != nil {
 			if s.colorize {
 				color.Yellow("	No logs available for this job.")
 			} else {
-				fmt.Println("	No logs available for this job.")
+				fmt.Println("  No logs available for this job.")
 			}
 
 			fmt.Println()
@@ -237,6 +285,13 @@ func (s *Streamer) fetchAndDisplayLogs() error {
 	return nil
 }
 
+// printLogLine prints colorized log line
+//
+// Parameters :
+//   - line: log line
+//
+// Examples:
+// s.printLogLine(dine)
 func (s *Streamer) printLogLine(line string) {
 	var output string
 
@@ -262,6 +317,14 @@ func (s *Streamer) printLogLine(line string) {
 	fmt.Println(output)
 }
 
+// colorizeContent colorizez content depending on log level
+//
+// Parameters :
+//   - content: logs content
+//   - loglvl: log level
+//
+// Examples:
+// colorizedContent := s.colorizeContent(content, lvl)
 func (s *Streamer) colorizeContent(content string, loglvl LogLevel) string {
 	switch loglvl {
 	case LevelError:
@@ -277,6 +340,13 @@ func (s *Streamer) colorizeContent(content string, loglvl LogLevel) string {
 	}
 }
 
+// detectLogLevel detects log level to format
+//
+// Parameters :
+//   - content: log content
+//
+// Examples:
+// lvl := s.detectLogLevel(content)
 func (s *Streamer) detectLogLevel(content string) LogLevel {
 	contentLower := strings.ToLower(content)
 
@@ -299,15 +369,29 @@ func (s *Streamer) detectLogLevel(content string) LogLevel {
 	return LevelInfo
 }
 
+// formatTimestamp formats timestamp in "15:04:05" format
+//
+// Parameters :
+//   - timestamp: time string
+//
+// Examples:
+// timestamp := s.formatTimestamp(time)
 func (s *Streamer) formatTimestamp(timestamp string) string {
 	t, err := time.Parse(time.RFC3339Nano, timestamp)
 	if err != nil {
 		return timestamp
 	}
 
-	return t.Format("15:16:17")
+	return t.Format("15:04:05")
 }
 
+// printJobHeader prints workflow job header
+//
+// Parameters :
+//   - job: workflow job
+//
+// Examples:
+// s.printJobHeader(job)
 func (s *Streamer) printJobHeader(job *gh.WorkflowJob) {
 	if s.colorize {
 		color.New(color.Bold, color.FgCyan).Printf("\nJob: %s\n", job.GetName())
@@ -323,6 +407,13 @@ func (s *Streamer) printJobHeader(job *gh.WorkflowJob) {
 	fmt.Println(strings.Repeat("─", 80))
 }
 
+// applyTail cuts the lines > s.taillines
+//
+// Parameters :
+//   - logs: logs data
+//
+// Examples:
+// tailedLogs := s.applyTail(logs)
 func (s *Streamer) applyTail(logs string) string {
 	lines := strings.Split(logs, "\n")
 	if len(lines) <= s.tailLines {
@@ -332,6 +423,13 @@ func (s *Streamer) applyTail(logs string) string {
 	return strings.Join(lines[len(lines)-s.tailLines:], "\n")
 }
 
+// printHeader prints header
+//
+// Parameters :
+//   - run: github workflow run
+//
+// Examples:
+// s.printHeader(run)
 func (s *Streamer) printHeader(run *gh.WorkflowRun) {
 	if s.colorize {
 		color.New(color.Bold).Println("Workflow Run")
@@ -350,6 +448,13 @@ func (s *Streamer) printHeader(run *gh.WorkflowRun) {
 	fmt.Println()
 }
 
+// formatStatus formats status of workflow
+//
+// Parameters :
+//   - status: status string
+//
+// Examples:
+// status := s.formatStatus("completed")
 func (s *Streamer) formatStatus(status string) string {
 	switch status {
 	case "queued":
@@ -365,6 +470,13 @@ func (s *Streamer) formatStatus(status string) string {
 	}
 }
 
+// formatConclusion formats conclusion of workflow run
+//
+// Parameters :
+//   - conc: conclusion content
+//
+// Examples:
+// conclusion := s.formatConclusion("success")
 func (s *Streamer) formatConclusion(conc string) string {
 	switch conc {
 	case "success":
@@ -380,6 +492,13 @@ func (s *Streamer) formatConclusion(conc string) string {
 	}
 }
 
+// formatCompletion formats completion process
+//
+// Parameters :
+//   - run: github workflow run
+//
+// Examples:
+// s.formatCompletion(run)
 func (s *Streamer) formatCompletion(run *gh.WorkflowRun) {
 	fmt.Println()
 	fmt.Println(strings.Repeat("-", 80))
@@ -403,6 +522,10 @@ func (s *Streamer) formatCompletion(run *gh.WorkflowRun) {
 	fmt.Println(strings.Repeat("-", 80))
 }
 
+// Stop cancels gracefully
+//
+// Examples:
+// s.stop()
 func (s *Streamer) Stop() {
 	s.cancelFunc()
 }
