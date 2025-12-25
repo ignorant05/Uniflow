@@ -17,8 +17,9 @@ var (
 )
 
 var configCmd = &cobra.Command{
-	Use:   "config",
-	Short: "Manage Uniflow configuration",
+	Use:     "config",
+	Aliases: []string{"c"},
+	Short:   "Manage Uniflow configuration",
 	Long: `Manage configuration settings for Uniflow,
 
 Available subcommands: 
