@@ -9,15 +9,32 @@ import (
 	"github.com/ignorant05/Uniflow/internal/helpers"
 )
 
+// ValidationError struct
 type ValidationError struct {
-	Field   string
+	// at what level ?
+	Field string
+
+	// the error itself
 	Message string
 }
 
+// Formatting the error
 func (e *ValidationError) Error() string {
 	return fmt.Sprintf("%s: %s", e.Field, e.Message)
 }
 
+// Validate validates overall config
+//
+// Parameters:
+//   - None
+//
+// Error possible causes:
+//   - at least one platform must be configured (github)
+//   - platform must be valid (github, jenkins, gitlab-ci, circleci)
+//   - at least one profile must be configured
+//
+// Examples:
+// errs := cfg.Validate()
 func (cfg *Config) Validate() []error {
 	var errors []error
 	if cfg.DefaultPlatform == "" {
@@ -50,6 +67,17 @@ func (cfg *Config) Validate() []error {
 	return errors
 }
 
+// ValidateProfiles validates profile
+//
+// Parameters:
+//   - key: field name
+//   - val: field value
+//
+// Error possible causes:
+//   - no platform configured
+//
+// Examples:
+// errs := ValidateProfiles("prod", profile)
 func ValidateProfiles(name string, profile *Profile) []error {
 	var errors []error
 	prefix := fmt.Sprintf("profiles.%s", name)
@@ -70,6 +98,18 @@ func ValidateProfiles(name string, profile *Profile) []error {
 	return errors
 }
 
+// ValidateGithub validates github conf
+//
+// Parameters:
+//   - prefix: prefix string
+//   - cfg: github configuration struct
+//
+// Error possible causes:
+//   - github token is not sat
+//   - invalid url
+//
+// Examples:
+// errs := Update(prefix, cfg)
 func ValidateGithub(prefix string, cfg *GithubConfig) []error {
 	var errors []error
 
@@ -97,6 +137,13 @@ func ValidateGithub(prefix string, cfg *GithubConfig) []error {
 	return errors
 }
 
+// ValidateAndReport validates configuration
+//
+// Parameters:
+//   - cfg: configuration struct
+//
+// Examples:
+// err := ValidateAndReport(cfg)
 func ValidateAndReport(cfg *Config) error {
 	errors := cfg.Validate()
 	if len(errors) == 0 {
@@ -113,6 +160,6 @@ func ValidateAndReport(cfg *Config) error {
 
 	fmt.Println("\nPlease fix these issues in your config file or use 'uniflow config set' to update values.")
 
-	return fmt.Errorf("configuration validation failed with %d error(s)", len(errors))
+	return fmt.Errorf("configuration validation failed with %d error(s)\n\n", len(errors))
 
 }

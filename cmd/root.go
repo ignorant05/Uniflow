@@ -6,11 +6,16 @@ import (
 	"github.com/spf13/cobra"
 )
 
+// root flags
 var (
+	// current tool version
 	version = "1.0.0"
+
+	// verbose output (global)
 	verbose bool
 )
 
+// Uniflow command initialization
 var rootCmd = &cobra.Command{
 	Use:   "Uniflow",
 	Short: "A powerful workflow orchestration tool",
@@ -27,6 +32,9 @@ func Execute() {
 }
 
 func init() {
+	// verbose flag
 	rootCmd.PersistentFlags().BoolVarP(&verbose, "verbose", "v", false, "Enable verbose output for debugging")
+
+	// version
 	rootCmd.SetVersionTemplate(`{{.Version}}`)
 }

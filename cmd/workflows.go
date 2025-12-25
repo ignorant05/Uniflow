@@ -8,7 +8,10 @@ import (
 	"github.com/spf13/cobra"
 )
 
+// workflows command flags
 var (
+	// --with-dispatch (-w)
+	// UTILITY: displays only workflows with workflow_dispatch trigger
 	wfWithDispatch bool
 )
 
@@ -35,17 +38,21 @@ Examples:
 func init() {
 	workflowsCmd.Flags().StringVarP(&profileName, "profile", "p", "default", "Config profile to use")
 	workflowsCmd.Flags().BoolVarP(&wfWithDispatch, "with-dispatch", "w", false, "Show only workflows with 'workflow_dispatch' trigger")
+
 	rootCmd.AddCommand(workflowsCmd)
 }
 
+// runWorkflows is the main function for status command
 func runWorkflows(cmd *cobra.Command, args []string) error {
+	// if verbose mode is active
 	if verbose {
 		fmt.Println("<!> Info: Verbose mode enabled")
 		fmt.Printf("   Profile: %s\n", profileName)
 	}
 
-	fmt.Println("❯❯❯ Listing available workflows...")
+	fmt.Println("❯ Listing available workflows...")
 
+	// creates new client with progileName
 	client, err := github.NewClientFromConfig(profileName)
 	if err != nil {
 		return err
@@ -56,8 +63,9 @@ func runWorkflows(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
+	// if verbose mode is active
 	if verbose {
-		fmt.Printf("<.> Info: Repository: %s/%s\n", owner, repo)
+		fmt.Printf("</> Info: Repository: %s/%s\n", owner, repo)
 	}
 
 	var workflows []*gh.Workflow
@@ -77,14 +85,14 @@ func runWorkflows(cmd *cobra.Command, args []string) error {
 	if len(workflows) == 0 {
 		fmt.Println("<?> No workflows found in this repository.")
 		fmt.Println("")
-		fmt.Println("<.> Info: To add a workflow:")
+		fmt.Println("</> Info: To add a workflow:")
 		fmt.Printf("   1. Create .github/workflows/ directory in %s/%s\n", owner, repo)
 		fmt.Println("   2. Add a workflow file (e.g., deploy.yml)")
 		fmt.Println("   3. Include 'workflow_dispatch:' trigger")
 		return nil
 	}
 
-	fmt.Printf("\n<✓> Found %d workflow(s):\n\n", len(workflows))
+	fmt.Printf("\n✓ Found %d workflow(s):\n\n", len(workflows))
 
 	for idx, wf := range workflows {
 		fmt.Printf("%d - workflow: %s\n", idx+1, wf.GetName())
@@ -92,11 +100,14 @@ func runWorkflows(cmd *cobra.Command, args []string) error {
 		fmt.Printf("   - State: %s\n", wf.GetState())
 
 		hasDispatch := false
+
+		// if verbose mode is active
 		if verbose {
 			fmt.Printf("   - ID: %d\n", wf.GetID())
 			fmt.Printf("   - URL: %s\n", wf.GetHTMLURL())
 		}
 
+		// if verbose mode is active
 		if !hasDispatch && verbose {
 			fmt.Println("<!> Warning: Check if this workflow has 'workflow_dispatch' trigger")
 		}
@@ -104,7 +115,7 @@ func runWorkflows(cmd *cobra.Command, args []string) error {
 		fmt.Println()
 	}
 
-	fmt.Println("<.> Info: Trigger a workflow with:")
+	fmt.Println("</> Info: Trigger a workflow with:")
 	if len(workflows) > 0 {
 		firstWorkflow := workflows[0].GetPath()
 		fileName := firstWorkflow

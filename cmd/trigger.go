@@ -8,11 +8,23 @@ import (
 	"github.com/spf13/cobra"
 )
 
+// trigger command flags
 var (
-	branch       string
+	// --branch (-b)
+	// UTILITY: specify branch
+	branch string
+
+	// --workflow (-w)
+	// UTILITY: specify workflow
 	workflowFile string
-	inputs       map[string]string
-	profileName  string
+
+	// --inputs (-i)
+	// UTILITY: with inputs
+	inputs map[string]string
+
+	// --profile (-p)
+	// UTILITY: specify profile
+	profileName string
 )
 
 var triggerCmd = &cobra.Command{
@@ -46,9 +58,16 @@ func init() {
 	rootCmd.AddCommand(triggerCmd)
 }
 
+// trigger command main function
 func runTriggerCmd(cmd *cobra.Command, args []string) {
+	if len(args) < 1 {
+		errMsg := fmt.Errorf("<?> Error: Not enough arguments.\n")
+		errorhandling.HandleError(errMsg)
+	}
+
 	workflow := args[0]
 
+	// if verbose mode active
 	if verbose {
 		fmt.Printf("<!> Info: Verbose mode enabled\n")
 		fmt.Printf("   Workflow: %s\n", workflow)
@@ -59,38 +78,44 @@ func runTriggerCmd(cmd *cobra.Command, args []string) {
 		}
 	}
 
-	fmt.Printf("❯❯❯ Triggering workflow: %s\n", workflow)
+	fmt.Printf("❯ Triggering workflow: %s\n", workflow)
 
+	// create new client with profileName
 	client, err := github.NewClientFromConfig(profileName)
 	if err != nil {
 		errMsg := fmt.Errorf("<?> Error: Field to create client.\n<?> Error: %w.\n", err)
 		errorhandling.HandleError(errMsg)
 	}
 
+	// if verbose mode active
 	if verbose {
-		fmt.Printf("<.> Info: Testing connection...\n")
+		fmt.Printf("</> Info: Testing connection...\n")
 		if err := client.TestConnection(); err != nil {
 			errMsg := fmt.Errorf("<?> Error: Connection Testing failed...\n%w.\n", err)
 			errorhandling.HandleError(errMsg)
 		}
-		fmt.Println("<✓> Testing connection passed...")
+		fmt.Println("✓ Testing connection passed...")
 	}
 
+	// retrieves default repoditory
 	owner, repo, err := client.GetDefaultRepository()
 	if err != nil {
 		errMsg := fmt.Errorf("<?> Error: Failed to get default repository...\n<?> Error: %w.\n", err)
 		errorhandling.HandleError(errMsg)
 	}
 
+	// if verbose mode active
 	if verbose {
-		fmt.Printf("<.> Info: %s/%s\n", owner, repo)
+		fmt.Printf("</> Info: %s/%s\n", owner, repo)
 	}
 
+	// parsing workflow inputs
 	workflowInputs := make(map[string]interface{})
 	for key, val := range inputs {
 		workflowInputs[key] = val
 	}
 
+	// trigger workflow
 	err = client.TriggerWorkflow(owner, repo, workflowFile, branch, workflowInputs)
 	if err != nil {
 		fmt.Printf("<?> Error: Failed to trigger workflow.\n")
@@ -110,11 +135,12 @@ func runTriggerCmd(cmd *cobra.Command, args []string) {
 		errorhandling.HandleError(err)
 	}
 
-	fmt.Println("<✓> Workflow triggered successfully!")
+	fmt.Println("✓ Workflow triggered successfully!")
 	fmt.Printf("   Repository: %s/%s\n", owner, repo)
 	fmt.Printf("   Workflow: %s\n", workflow)
 	fmt.Printf("   Branch: %s\n", branch)
 
+	// retrieves repository information
 	repoInfo, err := client.GetRepositoryInfo(owner, repo)
 	if err != nil {
 		errMsg := fmt.Errorf("<?> Error: Failed to retrieve repository %s/%s info.\n<?> Error: %w.\n", owner, repo, err)
@@ -123,7 +149,7 @@ func runTriggerCmd(cmd *cobra.Command, args []string) {
 		fmt.Printf("   View at: %s/actions\n", repoInfo.HTMLURL)
 	}
 	if len(workflowInputs) > 0 {
-		fmt.Println("\n❯❯❯ Inputs:")
+		fmt.Println("\n❯ Inputs:")
 		for key, val := range workflowInputs {
 			fmt.Printf("❯   %s: %v\n", key, val)
 		}
