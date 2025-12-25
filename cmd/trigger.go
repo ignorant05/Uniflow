@@ -39,7 +39,7 @@ Example:
 
 func init() {
 	triggerCmd.Flags().StringVarP(&branch, "branch", "b", "main", "Branch to trigger the workflow on")
-	triggerCmd.Flags().StringVar(&workflowFile, "workflow", "", "Workflow file name (if different from arg)")
+	triggerCmd.Flags().StringVarP(&workflowFile, "workflow", "w", "", "Workflow file name (if different from arg)")
 	triggerCmd.Flags().StringToStringVarP(&inputs, "input", "i", nil, "Workflow inputs (key=value)")
 	triggerCmd.Flags().StringVarP(&profileName, "profile", "p", "default", "Config profile to use")
 
