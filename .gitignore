@@ -1,4 +1,5 @@
 uniflow
+replacements.txt
 *.exe
 *.test
 /bin/
