@@ -70,7 +70,7 @@ cd uniflow
 ./install.sh
 ```
 
-> #NOTE: Please **verify** the [install.sh script](https://github.com/Ignornat05/Uniflow/install.sh) before proceeding with this installation                          method.
+> #NOTE: Please **verify** the [install.sh script](https://github.com/ignorant05/Uniflow/blob/main/install.sh) before proceeding with this installation                          method.
 
 ### Prerequisites
 
@@ -213,7 +213,7 @@ See Configuration Guide for complete reference.
 | `status`    | Check workflow status    | `uniflow status deploy.yml`        |
 | `logs`      | View workflow logs       | `uniflow logs deploy.yml --follow` |
 
-See [Commands Reference](https://github.com/ignorant05/Uniflow/doc/commands.md) for detailed commands documentation.
+See [Commands Reference](https://github.com/ignorant05/Uniflow/blob/main/doc/commands.md) for detailed commands documentation.
 
 ---
 ## 🎨 Features Showcase
@@ -255,7 +255,7 @@ Shows:
 ---
 ## 🤝 Contributing
 
-We welcome contributions! Please see our [Contributing Guide](https://github.com/ignorant05/Uniflow/CONTRIBUTING.md) for details.
+We welcome contributions! Please see our [Contributing Guide](https://github.com/ignorant05/Uniflow/blob/main/doc/github-actions.md) for details.
 
 ### Quick Start for Contributors
 
@@ -343,7 +343,7 @@ If you find this project useful, please consider giving it a star!
 ---
 ## 💻 Contribution
 
-As for contributions, see the [contribution guidelines](https://github.com/ignorant05/Uniflow/blob/main/doc/CONTRIBUTING.md) 
+As for contributions, see the [contribution guidelines](https://github.com/ignorant05/Uniflow/blob/main/doc/github-actions.md) 
 
 ---
 Made by [ignorant05](https://github.com/ignorant05)

@@ -698,6 +698,3 @@ uniflow logs deploy.yml --no-color > deployment.log
 
 - [GitHub Actions Guide](github-actions.md)
 
----
-
-**Next:** [GitHub Actions Guide](github-actions.md) →
