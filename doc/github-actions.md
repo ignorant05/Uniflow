@@ -554,9 +554,9 @@ uniflow logs deploy.yml --verbose
 ### 2. Use Descriptive Names
 
 ```yaml
-name: Deploy to Production  # ✅ Clear
+name: Deploy to Production   # ✅ Clear
 # vs
-name: Deploy  # ❌ Vague
+name: Deploy   # ❌ Vague
 ```
 
 ### 3. Document Inputs
