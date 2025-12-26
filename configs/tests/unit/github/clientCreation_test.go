@@ -46,8 +46,8 @@ func TestClientWithoutToken(t *testing.T) {
 // Make sure to set an env variable called "GITHUB_TOKEN" for this one before launching it or i'll fail
 // use export GITHUB_TOKEN="ur token here"
 func TestClientWithTokenFromEnv(t *testing.T) {
-	// Set ur token here for testing and place it in a replacements.txt (if you want to re-push this file again)
-	os.Setenv("GITHUB_TOKEN", "")
+	// Uncomment the next line and set ur token here for testing and place it in a replacements.txt (if you want to re-push this file again)
+	// os.Setenv("GITHUB_TOKEN", "")
 
 	token := os.Getenv("GITHUB_TOKEN")
 
