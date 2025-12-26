@@ -1,0 +1,9 @@
+uniflow
+replacements.txt
+*.exe
+*.test
+/bin/
+/dist/
+.vscode/
+.idea/
+go.work
