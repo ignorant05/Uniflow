@@ -467,7 +467,7 @@ uniflow trigger deploy.yml \
 uniflow logs deploy.yml --follow --no-color > deployment.log
 
 # Check if successful
-if uniflow status deploy.yml | grep -q "✅ Success"; then
+if uniflow status deploy.yml | grep -q "Success"; then
   echo "Deployment successful!"
   exit 0
 else

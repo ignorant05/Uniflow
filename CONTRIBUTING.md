@@ -414,7 +414,7 @@ Any other context, mockups, or examples.
 
 - **GitHub Issues** - Bug reports and features
 - **GitHub Discussions** - Questions and ideas
-- **Email** - your.email@example.com
+- **Email** - oussamabaccara05@gmail.com
 
 ### Stay Updated
 
