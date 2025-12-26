@@ -1,4 +1,4 @@
-.PHONY: install build test cov-test fmt lint clean 
+.PHONY: install build test ctest fmt lint clean 
 
 args = main.go
 out = uniflow 
@@ -20,7 +20,7 @@ test:
 	go test $(test_args) -v
 	@echo "Tests ran"
 
-cov-test: 
+ctest: 
 	@echo "Running coverage tests..."
 	go test -cover $(test_args) -v
 	@echo "Tests ran"
