@@ -25,7 +25,6 @@ Available for all commands:
 | `--version` | -     | Show version          | -         |
 
 ---
-
 ## `init` Command
 
 Initialize Uniflow configuration.
