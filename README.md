@@ -346,5 +346,4 @@ If you find this project useful, please consider giving it a star!
 As for contributions, see the [contribution guidelines](https://github.com/ignorant05/Uniflow/blob/main/doc/CONTRIBUTING.md) 
 
 ---
-
 Made by [ignorant05](https://github.com/ignorant05)
