@@ -168,7 +168,7 @@ footer (optional)
 - `style` - Code style (formatting, etc.)
 - `refactor` - Code refactoring
 - `test` - Adding tests
--
+
 **Examples:**
 
 ```bash
