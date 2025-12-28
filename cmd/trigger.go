@@ -3,8 +3,8 @@ package cmd
 import (
 	"fmt"
 
-	"github.com/ignorant05/Uniflow/configs/github"
 	errorhandling "github.com/ignorant05/Uniflow/internal/errorHandling"
+	"github.com/ignorant05/Uniflow/platforms/github"
 	"github.com/spf13/cobra"
 )
 

@@ -9,9 +9,9 @@ import (
 	"github.com/fatih/color"
 	gh "github.com/google/go-github/v57/github"
 
-	"github.com/ignorant05/Uniflow/configs/github"
 	constants "github.com/ignorant05/Uniflow/internal/constants/logs"
 	"github.com/ignorant05/Uniflow/internal/helpers"
+	"github.com/ignorant05/Uniflow/platforms/github"
 )
 
 // Log Level type

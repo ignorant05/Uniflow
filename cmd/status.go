@@ -7,8 +7,8 @@ import (
 
 	gh "github.com/google/go-github/v57/github"
 	"github.com/ignorant05/Uniflow/cmd/helpers"
-	"github.com/ignorant05/Uniflow/configs/github"
 	errorhandling "github.com/ignorant05/Uniflow/internal/errorHandling"
+	"github.com/ignorant05/Uniflow/platforms/github"
 	"github.com/spf13/cobra"
 )
 
