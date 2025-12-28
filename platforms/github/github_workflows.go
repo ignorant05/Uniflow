@@ -5,9 +5,9 @@ import (
 	"strings"
 
 	"github.com/google/go-github/v57/github"
-	ghconstants "github.com/ignorant05/Uniflow/configs/github/constants"
-	"github.com/ignorant05/Uniflow/configs/github/helpers"
 	constants "github.com/ignorant05/Uniflow/internal/constants/config"
+	ghconstants "github.com/ignorant05/Uniflow/platforms/github/constants"
+	"github.com/ignorant05/Uniflow/platforms/github/helpers"
 )
 
 // TriggerWorkflow triggers a GitHub Actions workflow using the workflow_dispatch event.

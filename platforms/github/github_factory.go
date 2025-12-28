@@ -5,8 +5,8 @@ import (
 	"fmt"
 
 	"github.com/google/go-github/v57/github"
-	"github.com/ignorant05/Uniflow/configs/github/helpers"
 	"github.com/ignorant05/Uniflow/internal/config"
+	"github.com/ignorant05/Uniflow/platforms/github/helpers"
 )
 
 // NewClientFromConfig creates new client from configuration.

@@ -6,9 +6,9 @@ import (
 	"os"
 
 	"github.com/google/go-github/v57/github"
-	"github.com/ignorant05/Uniflow/configs/github/helpers"
 	"github.com/ignorant05/Uniflow/internal/config"
 	constants "github.com/ignorant05/Uniflow/internal/constants/config"
+	"github.com/ignorant05/Uniflow/platforms/github/helpers"
 	"golang.org/x/oauth2"
 )
 

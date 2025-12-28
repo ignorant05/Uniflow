@@ -6,8 +6,8 @@ import (
 	"time"
 
 	"github.com/fatih/color"
-	"github.com/ignorant05/Uniflow/configs/github"
 	"github.com/ignorant05/Uniflow/internal/config"
+	"github.com/ignorant05/Uniflow/platforms/github"
 )
 
 // Test streamer creation
