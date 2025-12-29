@@ -6,7 +6,7 @@ import (
 	"testing"
 
 	gh "github.com/google/go-github/v57/github"
-	mock "github.com/ignorant05/Uniflow/configs/tests/unit/github"
+	mock "github.com/ignorant05/Uniflow/platforms/tests/unit/github"
 
 	"github.com/stretchr/testify/assert"
 )

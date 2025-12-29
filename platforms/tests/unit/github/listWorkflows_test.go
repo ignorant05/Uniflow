@@ -8,9 +8,9 @@ import (
 	"testing"
 
 	gh "github.com/google/go-github/v57/github"
-	"github.com/ignorant05/Uniflow/configs/github"
-	mock "github.com/ignorant05/Uniflow/configs/tests/unit/github"
 	"github.com/ignorant05/Uniflow/internal/config"
+	"github.com/ignorant05/Uniflow/platforms/github"
+	mock "github.com/ignorant05/Uniflow/platforms/tests/unit/github"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
