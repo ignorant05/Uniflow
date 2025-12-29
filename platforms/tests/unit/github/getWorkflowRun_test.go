@@ -5,7 +5,7 @@ import (
 	"net/http"
 	"testing"
 
-	mock "github.com/ignorant05/Uniflow/configs/tests/unit/github"
+	mock "github.com/ignorant05/Uniflow/platforms/tests/unit/github"
 
 	gh "github.com/google/go-github/v57/github"
 	"github.com/stretchr/testify/assert"
