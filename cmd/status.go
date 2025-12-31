@@ -1,14 +1,16 @@
 package cmd
 
 import (
+	"context"
 	"fmt"
 	"strings"
 	"time"
 
-	gh "github.com/google/go-github/v57/github"
 	"github.com/ignorant05/Uniflow/cmd/helpers"
+	"github.com/ignorant05/Uniflow/internal/config"
 	errorhandling "github.com/ignorant05/Uniflow/internal/errorHandling"
-	"github.com/ignorant05/Uniflow/platforms/github"
+	"github.com/ignorant05/Uniflow/platforms"
+	"github.com/ignorant05/Uniflow/types"
 	"github.com/spf13/cobra"
 )
 
@@ -21,6 +23,10 @@ var (
 	// --limit (-l) flag
 	// UTILITY: limits output (sorted)
 	limitRuns int
+
+	// --verbose (-v)
+	// UTILITY: verbose output
+	statusVerbose bool
 )
 
 // status command declaration
@@ -54,6 +60,7 @@ Example:
 
 func init() {
 	statusCmd.Flags().BoolVarP(&showAllRuns, "all", "a", false, "Show all workflow runs (default: 5 most recent)")
+	statusCmd.Flags().BoolVarP(&statusVerbose, "verbose", "v", false, "Verbose output")
 	statusCmd.Flags().IntVarP(&limitRuns, "limit", "l", 5, "Number of runs to show")
 
 	rootCmd.AddCommand(statusCmd)
@@ -66,15 +73,22 @@ func runStatusCmd(cmd *cobra.Command, args []string) {
 		fmt.Println("Running in verbose mode...")
 	}
 
-	client, err := github.NewClientFromConfig(profileName)
+	ctx := context.Background()
+	cfg, err := config.Load()
 	if err != nil {
 		errorhandling.HandleError(err)
 	}
 
-	owner, repo, err := client.GetDefaultRepository()
+	factory := platforms.NewFactory(cfg)
+
+	// create new client with profileName
+	client, err := factory.CreateClientAutoDetectPlatform(ctx, profileName)
 	if err != nil {
-		errorhandling.HandleError(err)
+		errMsg := fmt.Errorf("<?> Error: Field to create client.\n<?> Error: %w.\n", err)
+		errorhandling.HandleError(errMsg)
 	}
+
+	owner, repo := client.GetRepository(ctx)
 
 	// if verbose mode is active
 	if verbose {
@@ -85,7 +99,12 @@ func runStatusCmd(cmd *cobra.Command, args []string) {
 		workflowFile := args[0]
 		fmt.Printf("❯ Checking status of workflow: %s\n\n", workflowFile)
 
-		if err := showWorkflowStatus(client, owner, repo, workflowFile); err != nil {
+		statusReq := types.StatusRequest{
+			Name:  workflowFile,
+			RunID: runID,
+		}
+
+		if err := showWorkflowStatus(ctx, client, owner, repo, statusReq); err != nil {
 			errorhandling.HandleError(err)
 		}
 		return
@@ -94,7 +113,7 @@ func runStatusCmd(cmd *cobra.Command, args []string) {
 	fmt.Println("</> Info: No workflow provided...")
 	fmt.Println("❯ Checking status of all workflows...")
 
-	if err := showAllWorkflowsStatus(client, owner, repo); err != nil {
+	if err := showAllWorkflowsStatus(ctx, client, owner, repo); err != nil {
 		errorhandling.HandleError(err)
 	}
 }
@@ -111,7 +130,7 @@ func runStatusCmd(cmd *cobra.Command, args []string) {
 //   - invalid workflow name
 //   - rate limit exceeded
 //   - no runs for this workflow
-func showWorkflowStatus(client *github.Client, owner, repo, workflowFile string) error {
+func showWorkflowStatus(ctx context.Context, client platforms.PlatformClient, owner, repo string, statusReq types.StatusRequest) error {
 	found := false
 
 	var (
@@ -120,16 +139,16 @@ func showWorkflowStatus(client *github.Client, owner, repo, workflowFile string)
 	)
 
 	// gettiing all workflows for owner/repo
-	workflows, err := client.ListWorkflows(owner, repo)
+	workflows, err := client.ListWorkflows(ctx, &types.ListWorkflowsRequest{WithDispatch: false})
 	if err != nil {
 		return err
 	}
 
 	// looking for a specific workflow with name: workflowFile
 	for _, wf := range workflows {
-		if strings.HasSuffix(wf.GetPath(), workflowFile) {
-			workflowID = wf.GetID()
-			workflowName = wf.GetName()
+		if strings.HasSuffix(wf.Path, workflowFile) {
+			workflowID = wf.ID
+			workflowName = wf.Name
 			found = !found
 			break
 		}
@@ -139,15 +158,22 @@ func showWorkflowStatus(client *github.Client, owner, repo, workflowFile string)
 		fmt.Printf("<?> Error: No workflow found with filename: %s\n\n", workflowFile)
 		fmt.Println("</> Info: Available workflows:")
 		for _, wf := range workflows {
-			path := wf.GetPath()
+			path := wf.Path
 			filename := strings.TrimPrefix(path, ".github/workflows/")
 			fmt.Printf("   - %s\n", filename)
 		}
 		return nil
 	}
 
+	listWorkflowRunsReq := types.ListWorkflowRunsRequest{
+		RunID:        workflowID,
+		WorkflowName: workflowFile,
+		Branch:       branch,
+		Limit:        tailLines,
+	}
+
 	// If it exists, getting workflowFile's runs
-	runs, err := client.GetWorkflowRuns(owner, repo, workflowID)
+	runs, err := client.ListWorkflowRuns(ctx, &listWorkflowRunsReq)
 	if err != nil {
 		if strings.Contains(err.Error(), "rate limit") {
 			fmt.Println("<?> Error: GitHub API rate limit exceeded")
@@ -157,7 +183,7 @@ func showWorkflowStatus(client *github.Client, owner, repo, workflowFile string)
 			fmt.Println("</> Info: Waiting 60 seconds before retry...")
 			time.Sleep(60 * time.Second)
 
-			runs, err = client.GetWorkflowRuns(owner, repo, workflowID)
+			runs, err = client.ListWorkflowRuns(ctx, &listWorkflowRunsReq)
 		}
 		return err
 	}
@@ -193,21 +219,21 @@ func showWorkflowStatus(client *github.Client, owner, repo, workflowFile string)
 //
 // Parameters:
 //   - run: workflow run target
-func DisplayRun(run *gh.WorkflowRun) {
-	fmt.Printf("  Run #%d\n", run.GetRunNumber())
-	fmt.Printf("    Status:     %s\n", helpers.FormatStatus(run.GetStatus()))
-	fmt.Printf("    Conclusion: %s\n", helpers.FormatConclusion(run.GetConclusion()))
-	fmt.Printf("    Branch:     %s\n", run.GetHeadBranch())
-	fmt.Printf("    Triggered:  %s\n", helpers.FormatTime(run.GetCreatedAt().Time))
+func DisplayRun(run *types.Run) {
+	fmt.Printf("  Run #%d\n", run.RunNumber)
+	fmt.Printf("    Status:     %s\n", helpers.FormatStatus(run.Status))
+	fmt.Printf("    Conclusion: %s\n", helpers.FormatConclusion(run.Conclusion))
+	fmt.Printf("    Branch:     %s\n", run.Branch)
+	fmt.Printf("    Triggered:  %s\n", helpers.FormatTime(run.CreatedAt))
 
 	// if verbose mode is active
 	if verbose {
-		fmt.Printf("    Run ID:     %d\n", run.GetID())
-		fmt.Printf("    Commit:     %.7s\n", run.GetHeadSHA())
-		fmt.Printf("    Actor:      %s\n", run.GetActor().GetLogin())
-		fmt.Printf("    Event:      %s\n", run.GetEvent())
-		fmt.Printf("    Updated:    %s\n", helpers.FormatTime(run.GetUpdatedAt().Time))
-		fmt.Printf("    URL:        %s\n", run.GetHTMLURL())
+		fmt.Printf("    Run ID:     %d\n", run.RunID)
+		fmt.Printf("    Commit:     %.7s\n", run.CommitSHA)
+		fmt.Printf("    Actor:      %s\n", run.Actor)
+		fmt.Printf("    Event:      %s\n", run.Event)
+		fmt.Printf("    Updated:    %s\n", helpers.FormatTime(run.UpdatedAt))
+		fmt.Printf("    URL:        %s\n", run.URL)
 	}
 
 	fmt.Println()
@@ -223,11 +249,11 @@ func DisplayRun(run *gh.WorkflowRun) {
 // Errors Possible causes:
 //   - no workflows
 //   - rate limit exceeded
-func showAllWorkflowsStatus(client *github.Client, owner, repo string) error {
+func showAllWorkflowsStatus(ctx context.Context, client platforms.PlatformClient, owner, repo string) error {
 	totalRuns := 0
 
 	// retrieving all workflows for owner/repo
-	workflows, err := client.ListWorkflows(owner, repo)
+	workflows, err := client.ListWorkflows(ctx, &types.ListWorkflowsRequest{WithDispatch: wfWithDispatch})
 	if err != nil {
 		return err
 	}
@@ -240,7 +266,13 @@ func showAllWorkflowsStatus(client *github.Client, owner, repo string) error {
 
 	// getting all workflow runs
 	for _, wf := range workflows {
-		runs, err := client.GetWorkflowRuns(owner, repo, wf.GetID())
+		listWorkflowRunsReq := types.ListWorkflowRunsRequest{
+			RunID:        0,
+			WorkflowName: "",
+			Branch:       branch,
+			Limit:        tailLines,
+		}
+		runs, err := client.ListWorkflowRuns(ctx, &listWorkflowRunsReq)
 		if err != nil {
 			if strings.Contains(err.Error(), "rate limit") {
 				fmt.Println("<?> Error: GitHub API rate limit exceeded")
@@ -250,12 +282,15 @@ func showAllWorkflowsStatus(client *github.Client, owner, repo string) error {
 				fmt.Println("</> Info: Waiting 60 seconds before retry...")
 				time.Sleep(60 * time.Second)
 
-				runs, err = client.GetWorkflowRuns(owner, repo, wf.GetID())
+				runs, err = client.ListWorkflowRuns(ctx, &listWorkflowRunsReq)
+				if err != nil {
+					return err
+				}
 			}
 
 			// if verbose mode is active
 			if verbose {
-				fmt.Printf("<?> Warning: Failed to get runs for %s: %v\n", wf.GetName(), err)
+				fmt.Printf("<?> Warning: Failed to get runs for %s: %v\n", wf.Name, err)
 			}
 
 			continue
@@ -267,8 +302,8 @@ func showAllWorkflowsStatus(client *github.Client, owner, repo string) error {
 			continue
 		}
 
-		fmt.Printf("   Workflow: %s\n", wf.GetName())
-		fmt.Printf("   File: %s\n", strings.TrimPrefix(wf.GetPath(), ".github/workflows/"))
+		fmt.Printf("   Workflow: %s\n", wf.Name)
+		fmt.Printf("   File: %s\n", strings.TrimPrefix(wf.Path, ".github/workflows/"))
 		fmt.Println(strings.Repeat("─", 80))
 
 		// limit = 1 just in case

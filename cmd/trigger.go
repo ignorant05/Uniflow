@@ -1,10 +1,16 @@
 package cmd
 
 import (
+	"context"
 	"fmt"
+	"time"
 
+	"github.com/ignorant05/Uniflow/cmd/helpers"
+	"github.com/ignorant05/Uniflow/internal/config"
 	errorhandling "github.com/ignorant05/Uniflow/internal/errorHandling"
-	"github.com/ignorant05/Uniflow/platforms/github"
+	"github.com/ignorant05/Uniflow/platforms"
+	ghlogs "github.com/ignorant05/Uniflow/platforms/github/logs"
+	"github.com/ignorant05/Uniflow/types"
 	"github.com/spf13/cobra"
 )
 
@@ -25,6 +31,14 @@ var (
 	// --profile (-p)
 	// UTILITY: specify profile
 	profileName string
+
+	// --stream
+	// UTILITY: stream logs in real time
+	streamLogs bool
+
+	// --verbose (-v)
+	// UTILITY: verbose output
+	triggerVerbose bool
 )
 
 var triggerCmd = &cobra.Command{
@@ -54,6 +68,8 @@ func init() {
 	triggerCmd.Flags().StringVarP(&workflowFile, "workflow", "w", "", "Workflow file name (if different from arg)")
 	triggerCmd.Flags().StringToStringVarP(&inputs, "input", "i", nil, "Workflow inputs (key=value)")
 	triggerCmd.Flags().StringVarP(&profileName, "profile", "p", "default", "Config profile to use")
+	triggerCmd.Flags().BoolVarP(&streamLogs, "stream", "s", false, "Stream workflow logs in real time")
+	triggerCmd.Flags().BoolVarP(&triggerVerbose, "verbose", "v", false, "Verbose output")
 
 	rootCmd.AddCommand(triggerCmd)
 }
@@ -68,7 +84,7 @@ func runTriggerCmd(cmd *cobra.Command, args []string) {
 	workflow := args[0]
 
 	// if verbose mode active
-	if verbose {
+	if triggerVerbose {
 		fmt.Printf("<!> Info: Verbose mode enabled\n")
 		fmt.Printf("   Workflow: %s\n", workflow)
 		fmt.Printf("   Branch: %s\n", branch)
@@ -80,32 +96,25 @@ func runTriggerCmd(cmd *cobra.Command, args []string) {
 
 	fmt.Printf("❯ Triggering workflow: %s\n", workflow)
 
+	ctx := context.Background()
+	cfg, err := config.Load()
+	if err != nil {
+		errorhandling.HandleError(err)
+	}
+
+	factory := platforms.NewFactory(cfg)
+
 	// create new client with profileName
-	client, err := github.NewClientFromConfig(profileName)
+	client, err := factory.CreateClientAutoDetectPlatform(ctx, profileName)
 	if err != nil {
 		errMsg := fmt.Errorf("<?> Error: Field to create client.\n<?> Error: %w.\n", err)
 		errorhandling.HandleError(errMsg)
 	}
 
-	// if verbose mode active
-	if verbose {
-		fmt.Printf("</> Info: Testing connection...\n")
-		if err := client.TestConnection(); err != nil {
-			errMsg := fmt.Errorf("<?> Error: Connection Testing failed...\n%w.\n", err)
-			errorhandling.HandleError(errMsg)
-		}
-		fmt.Println("✓ Testing connection passed...")
-	}
-
-	// retrieves default repoditory
-	owner, repo, err := client.GetDefaultRepository()
-	if err != nil {
-		errMsg := fmt.Errorf("<?> Error: Failed to get default repository...\n<?> Error: %w.\n", err)
-		errorhandling.HandleError(errMsg)
-	}
+	owner, repo := client.GetRepository(ctx)
 
 	// if verbose mode active
-	if verbose {
+	if triggerVerbose {
 		fmt.Printf("</> Info: %s/%s\n", owner, repo)
 	}
 
@@ -115,8 +124,13 @@ func runTriggerCmd(cmd *cobra.Command, args []string) {
 		workflowInputs[key] = val
 	}
 
+	triggerReqBody := types.TriggerRequest{
+		WorkflowName: workflowFile,
+		Branch:       branch,
+		Inputs:       workflowInputs,
+	}
 	// trigger workflow
-	err = client.TriggerWorkflow(owner, repo, workflowFile, branch, workflowInputs)
+	_, err = client.TriggerWorkflow(ctx, &triggerReqBody)
 	if err != nil {
 		fmt.Printf("<?> Error: Failed to trigger workflow.\n")
 		fmt.Printf("<?> Error: %v\n\n", err)
@@ -141,7 +155,7 @@ func runTriggerCmd(cmd *cobra.Command, args []string) {
 	fmt.Printf("   Branch: %s\n", branch)
 
 	// retrieves repository information
-	repoInfo, err := client.GetRepositoryInfo(owner, repo)
+	repoInfo, err := client.GetRepositoryInfo(ctx)
 	if err != nil {
 		errMsg := fmt.Errorf("<?> Error: Failed to retrieve repository %s/%s info.\n<?> Error: %w.\n", owner, repo, err)
 		errorhandling.HandleError(errMsg)
@@ -153,5 +167,57 @@ func runTriggerCmd(cmd *cobra.Command, args []string) {
 		for key, val := range workflowInputs {
 			fmt.Printf("❯   %s: %v\n", key, val)
 		}
+	}
+
+	if streamLogs {
+		fmt.Println("❯ Waiting for workflow to start...")
+
+		var runStatus string
+		// wait for 30 secs
+		for range 30 {
+			ListWorkflowRuns := types.ListWorkflowRunsRequest{
+				RunID:        runID,
+				WorkflowName: workflow,
+				Branch:       branch,
+				Limit:        1,
+			}
+			runs, err := client.ListWorkflowRuns(ctx, &ListWorkflowRuns)
+			if err == nil && runs[0].Status != "queued" {
+				runStatus = runs[0].Status
+				break
+			}
+
+			time.Sleep(1 * time.Second)
+		}
+
+		// Extract GitHub client for streamer
+		githubClient, err := helpers.ExtractGithubClient(client)
+		if err != nil {
+			errorhandling.HandleError(fmt.Errorf("streaming only supported for GitHub: %w", err))
+			return
+		}
+
+		if runStatus == "in_progress" || runStatus == "queued" {
+			// Stream logs
+			streamer := ghlogs.NewStreamer(
+				githubClient,
+				owner,
+				repo,
+				runID,
+				ghlogs.StreamerOptions{
+					Follow:    true,
+					TailLines: 0,
+					Colorize:  true,
+				})
+
+			setupGracefulShutdown(streamer)
+			streamer.Stream()
+		} else {
+			fmt.Println("<!> Warn:  Workflow didn't start within expected time.")
+			fmt.Printf("   View logs later with: uniflow logs --run-id %d\n", runID)
+		}
+	} else {
+		fmt.Printf("   View logs with: uniflow logs --run-id %d\n", runID)
+		fmt.Printf("   Or stream with: uniflow logs --run-id %d --follow\n", runID)
 	}
 }

@@ -1,15 +1,19 @@
 package cmd
 
 import (
+	"context"
 	"fmt"
 	"os"
 	"os/signal"
 	"strings"
 	"syscall"
 
+	"github.com/ignorant05/Uniflow/cmd/helpers"
+	"github.com/ignorant05/Uniflow/internal/config"
 	errorhandling "github.com/ignorant05/Uniflow/internal/errorHandling"
-	"github.com/ignorant05/Uniflow/internal/logs"
-	"github.com/ignorant05/Uniflow/platforms/github"
+	"github.com/ignorant05/Uniflow/platforms"
+	ghlogs "github.com/ignorant05/Uniflow/platforms/github/logs"
+	"github.com/ignorant05/Uniflow/types"
 	"github.com/spf13/cobra"
 )
 
@@ -42,6 +46,14 @@ var (
 	// --platform flag
 	// UTILITY: specify platform
 	platformFlag string
+
+	// --output (-o) flag
+	// UTILITY: output file name
+	output string
+
+	// --verbose flag
+	// UTILITY: logsVerbose output
+	logsVerbose bool
 )
 
 // Command: logs (or l)
@@ -88,7 +100,9 @@ func init() {
 	// Flags declaration
 	logsCmd.Flags().Int64Var(&runID, "run-id", 0, "Specific run ID")
 	logsCmd.Flags().StringVarP(&jobName, "job", "j", "", "Specific job name")
+	logsCmd.Flags().StringVarP(&output, "output", "o", "", "download file name for logs")
 	logsCmd.Flags().BoolVarP(&followLogs, "follow", "f", false, "Follow logs (not implemented)")
+	logsCmd.Flags().BoolVarP(&logsVerbose, "verbose", "v", false, "verbose output")
 	logsCmd.Flags().IntVarP(&tailLines, "tail", "t", 0, "Show last N lines (0 = all)")
 	logsCmd.Flags().BoolVarP(&downloadOnly, "download-only", "d", false, "Just show download URL")
 	logsCmd.Flags().BoolVar(&noColor, "no-color", false, "Disable colored output")
@@ -100,9 +114,9 @@ func init() {
 
 // runLogsCmd
 func runLogsCmd(cmd *cobra.Command, args []string) {
-	// if verbose mode is active
-	if verbose {
-		fmt.Println("<!> Info: Verbose mode enabled")
+	// if Verbose mode is active
+	if logsVerbose {
+		fmt.Println("<!> Info: logsVerbose mode enabled")
 	}
 
 	// only works for github for now
@@ -112,58 +126,91 @@ func runLogsCmd(cmd *cobra.Command, args []string) {
 		return
 	}
 
-	// creating new client using profile name
-	client, err := github.NewClientFromConfig(profileName)
+	ctx := context.Background()
+	cfg, err := config.Load()
 	if err != nil {
 		errorhandling.HandleError(err)
-		return
 	}
 
-	// retrieving default repository field
-	owner, repo, err := client.GetDefaultRepository()
+	factory := platforms.NewFactory(cfg)
+
+	// create new client with profileName
+	client, err := factory.CreateClientAutoDetectPlatform(ctx, profileName)
 	if err != nil {
-		errorhandling.HandleError(err)
-		return
+		errMsg := fmt.Errorf("<?> Error: Field to create client.\n<?> Error: %w.\n", err)
+		errorhandling.HandleError(errMsg)
 	}
 
-	// if verbose mode is active
-	if verbose {
+	owner, repo := client.GetRepository(ctx)
+
+	// if Verbose mode is active
+	if logsVerbose {
 		fmt.Printf("</> Info: Repository: %s/%s\n", owner, repo)
 		fmt.Printf("</> Info: Platform: %s\n", platformFlag)
 	}
 
 	// getting workflow runID (and name)
-	targetRunID, workflowName, err := resolveRunID(client, owner, repo, args)
+	targetRunID, workflowName, err := resolveRunID(ctx, client, owner, repo, args)
 	if err != nil {
 		errorhandling.HandleError(err)
 		return
 	}
 
-	// Verify workflowName variable value and print output as needed
-	if workflowName != "" {
-		fmt.Printf("❯ Fetching logs for workflow: %s (Run #%d)\n\n", workflowName, targetRunID)
-	} else {
-		fmt.Printf("❯ Fetching logs for run ID: %d\n\n", targetRunID)
+	// For --follow, verify workflow is still running
+	if followLogs {
+		statusReq := types.StatusRequest{}
+
+		status, err := client.GetStatus(ctx, &statusReq)
+		if err != nil {
+			errorhandling.HandleError(fmt.Errorf("failed to get workflow run: %w", err))
+			return
+		}
+
+		if status.Status == "completed" {
+			fmt.Println("<!> Info: Workflow already completed. Use without --follow to view logs.")
+			followLogs = false
+		} else if status.Status != "in_progress" && status.Status != "queued" {
+			fmt.Printf("<!> Info: Workflow status is '%s'. Cannot follow.\n", status.Status)
+			followLogs = false
+		}
 	}
 
-	// creating new streamer
-	streamer := logs.NewStreamer(
-		client,
+	// Print header
+	if workflowName != "" {
+		fmt.Printf("❯ %s workflow: %s (Run #%d)\n\n",
+			map[bool]string{true: "Streaming", false: "Viewing"}[followLogs],
+			workflowName, targetRunID)
+	} else {
+		fmt.Printf("❯ %s run ID: %d\n\n",
+			map[bool]string{true: "Streaming", false: "Viewing"}[followLogs],
+			targetRunID)
+	}
+
+	// Extract GitHub client for streamer
+	githubClient, err := helpers.ExtractGithubClient(client)
+	if err != nil {
+		errorhandling.HandleError(fmt.Errorf("streaming only supported for GitHub: %w", err))
+		return
+	}
+
+	// Create streamer
+	streamer := ghlogs.NewStreamer(
+		githubClient,
 		owner,
 		repo,
 		targetRunID,
-		logs.StreamerOptions{
+		ghlogs.StreamerOptions{
 			Follow:    followLogs,
 			TailLines: tailLines,
 			Colorize:  !noColor,
 		})
 
-	// Graceful shutdown
+	// Handle graceful shutdown
 	setupGracefulShutdown(streamer)
 
+	// Stream or display logs
 	if err := streamer.Stream(); err != nil {
 		errorhandling.HandleError(err)
-		return
 	}
 
 }
@@ -179,7 +226,7 @@ func runLogsCmd(cmd *cobra.Command, args []string) {
 // Errors possible causes:
 //   - invalid runID and workflow name
 //   - cannot retrieve workflow (either deosn't exist or internal problem)
-func resolveRunID(client *github.Client, owner, repo string, args []string) (int64, string, error) {
+func resolveRunID(ctx context.Context, client platforms.PlatformClient, owner, repo string, args []string) (int64, string, error) {
 	if runID != 0 {
 		return runID, "", nil
 	}
@@ -192,14 +239,14 @@ func resolveRunID(client *github.Client, owner, repo string, args []string) (int
 
 		workflowFile = args[0]
 
-		workflows, err := client.ListWorkflows(owner, repo)
+		workflows, err := client.ListWorkflows(ctx, &types.ListWorkflowsRequest{WithDispatch: wfWithDispatch})
 		if err != nil {
 			return 0, "", err
 		}
 
 		for _, wf := range workflows {
-			if strings.HasSuffix(wf.GetPath(), workflowFile) {
-				workflowID, workflowName = wf.GetID(), wf.GetName()
+			if strings.HasSuffix(wf.Path, workflowFile) {
+				workflowID, workflowName = wf.ID, wf.Name
 				break
 			}
 		}
@@ -208,27 +255,39 @@ func resolveRunID(client *github.Client, owner, repo string, args []string) (int
 			return 0, "", fmt.Errorf("<?> Error: Invalid workflow.\n")
 		}
 
-		logsURL, err := client.GetWorkflowRunLogs(owner, repo, workflowID)
+		workflowRunLogsReq := types.LogsRequest{
+			RunID: workflowID,
+			Tail:  tailLines,
+		}
+
+		logsURL, err := client.ListWorkflowRunLogs(ctx, &workflowRunLogsReq)
 		if err != nil {
 			return 0, "", err
 		}
 
 		if downloadOnly {
-			logs.DownloadLogs(logsURL)
+			ghlogs.DownloadLogs(logsURL.URL, output)
 		}
 
-		runs, err := client.GetWorkflowRuns(owner, repo, workflowID)
+		listWorkflowRunsReq := types.ListWorkflowRunsRequest{
+			RunID:        workflowID,
+			WorkflowName: workflowFile,
+			Branch:       branch,
+			Limit:        tailLines,
+		}
+
+		runs, err := client.ListWorkflowRuns(ctx, &listWorkflowRunsReq)
 		if err != nil || len(runs) <= 0 {
 			return 0, "", fmt.Errorf("<?> Error: cannot retrieve workflow runs.\n<?> Workflow: %s\n", workflowName)
 		}
 
-		return runs[0].GetID(), workflowName, nil
+		return runs[0].RunID, workflowName, nil
 	}
 
 	return 0, "", fmt.Errorf("<?> Error: Please specify either a workflow name or use --run-id")
 }
 
-func setupGracefulShutdown(s *logs.Streamer) {
+func setupGracefulShutdown(s *ghlogs.Streamer) {
 	// making new channel with buffer
 	sigChan := make(chan os.Signal, 1)
 	signal.Notify(sigChan, os.Interrupt, syscall.SIGTERM)

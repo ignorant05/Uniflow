@@ -13,11 +13,6 @@ func TestWorkflowsFlags(t *testing.T) {
 		defaultValue string
 	}{
 		{
-			name:         "profile flag",
-			flagName:     "profile",
-			defaultValue: "default",
-		},
-		{
 			name:         "with-dispatch flag",
 			flagName:     "with-dispatch",
 			defaultValue: "false",
