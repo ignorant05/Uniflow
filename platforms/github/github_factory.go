@@ -6,7 +6,7 @@ import (
 
 	"github.com/google/go-github/v57/github"
 	"github.com/ignorant05/Uniflow/internal/config"
-	"github.com/ignorant05/Uniflow/platforms/github/helpers"
+	"github.com/ignorant05/Uniflow/types"
 )
 
 // NewClientFromConfig creates new client from configuration.
@@ -94,13 +94,13 @@ func (c *Client) TestConnection() error {
 // Example:
 //
 //	info, err := GetRepositoryInfo("owner", "repo")
-func (c *Client) GetRepositoryInfo(owner, repo string) (*helpers.RepositoryInfo, error) {
+func (c *Client) GetRepositoryInfo(owner, repo string) (*types.RepositoryInfo, error) {
 	repository, _, err := c.Client.Repositories.Get(c.Ctx, owner, repo)
 	if err != nil {
 		return nil, fmt.Errorf("<?> Error: Failed to get repository %s info.\n<?> Error: %w.\n\n", repo, err)
 	}
 
-	return &helpers.RepositoryInfo{
+	return &types.RepositoryInfo{
 		Name:          repository.GetName(),
 		FullName:      repository.GetFullName(),
 		Description:   repository.GetDescription(),
