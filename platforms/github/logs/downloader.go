@@ -2,14 +2,15 @@ package github
 
 import (
 	"archive/zip"
-	"bytes"
 	"context"
 	"fmt"
 	"io"
 	"net/http"
+	"os"
+	"strings"
 	"time"
 
-	constants "github.com/ignorant05/Uniflow/internal/constants/logs"
+	"github.com/ignorant05/Uniflow/platforms/github/constants"
 )
 
 type HttpClient interface {
@@ -67,9 +68,23 @@ func (s *Streamer) readLogs(logsUrl string) (string, error) {
 //
 // Example:
 // body, err := DownloadLogs(logsUrl)
-func DownloadLogs(logsUrl string) (string, error) {
+func DownloadLogs(logsUrl, downloadFileName string) error {
 	if logsUrl == "" {
-		return "", fmt.Errorf("<?> Error: Invalid URL.\n")
+		return fmt.Errorf("<?> Error: Invalid URL.\n")
+	}
+
+	var path string
+	if downloadFileName == "" {
+		downloadFileName = constants.DEFAULT_DOWNLOAD_FILE_NAME
+		path = constants.DEFAULT_DOWNLOAD_DIR_PATH + "/" + downloadFileName
+	}
+
+	if strings.HasPrefix(downloadFileName, "~/") || strings.HasPrefix(downloadFileName, "/home/") {
+		path = downloadFileName
+	}
+
+	if !strings.HasSuffix(path, ".zip") {
+		path += ".zip"
 	}
 
 	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
@@ -77,32 +92,40 @@ func DownloadLogs(logsUrl string) (string, error) {
 
 	req, err := http.NewRequestWithContext(ctx, "GET", logsUrl, nil)
 	if err != nil {
-		return "", fmt.Errorf("<?> Error: Create request: %w", err)
+		return fmt.Errorf("<?> Error: Create request: %w", err)
 	}
 	req.Header.Set("User-Agent", "Uniflow-CLI")
 
 	resp, err := DefaultClient.Do(req)
 	if err != nil {
-		return "", fmt.Errorf("<?> Error: Download: %w", err)
+		return fmt.Errorf("<?> Error: Download: %w", err)
 	}
-
 	defer resp.Body.Close()
 
 	if resp.StatusCode != http.StatusOK {
-		return "", fmt.Errorf("<?> Error: Failed to download logs data.\n<?> Error: Status Code: %d\n", resp.StatusCode)
+		return fmt.Errorf("<?> Error: Failed to download logs data.\n<?> Error: Status Code: %d\n", resp.StatusCode)
 	}
 
-	data, err := io.ReadAll(io.LimitReader(resp.Body, constants.DATA_LOGS_MAX_SIZE))
+	file, err := os.Create(downloadFileName)
 	if err != nil {
-		return "", fmt.Errorf("<?> Error: Failed to read logs data.\n<?> Error: %w\n", err)
+		return fmt.Errorf("<?> Error: Create output file: %w", err)
 	}
+	defer file.Close()
 
-	_, err = zip.NewReader(bytes.NewReader(data), int64(len(data)/1024))
+	limitedReader := io.LimitReader(resp.Body, constants.DATA_LOGS_MAX_SIZE)
+
+	bytesWritten, err := io.Copy(file, limitedReader)
 	if err != nil {
-		return "", fmt.Errorf("<?> Error: Failed to parse logs data.\n<?> Error: %w\n", err)
+		return fmt.Errorf("<?> Error: Failed to write logs data: %w", err)
 	}
 
-	fmt.Printf("✓ Downloaded %d KB of logs\n\n", len(data)/1024)
+	// Verify that the zip file is valid
+	file.Seek(0, 0)
+	_, err = zip.NewReader(file, bytesWritten)
+	if err != nil {
+		return fmt.Errorf("<?> Error: Failed to parse logs data.\n<?> Error: %w\n", err)
+	}
 
-	return string(data), nil
+	fmt.Printf("✓ Downloaded %d KB of logs to %s\n\n", bytesWritten/1024, downloadFileName)
+	return nil
 }
