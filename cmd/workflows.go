@@ -1,10 +1,13 @@
 package cmd
 
 import (
+	"context"
 	"fmt"
 
-	gh "github.com/google/go-github/v57/github"
-	"github.com/ignorant05/Uniflow/platforms/github"
+	"github.com/ignorant05/Uniflow/internal/config"
+	errorhandling "github.com/ignorant05/Uniflow/internal/errorHandling"
+	"github.com/ignorant05/Uniflow/platforms"
+	"github.com/ignorant05/Uniflow/types"
 	"github.com/spf13/cobra"
 )
 
@@ -13,6 +16,10 @@ var (
 	// --with-dispatch (-w)
 	// UTILITY: displays only workflows with workflow_dispatch trigger
 	wfWithDispatch bool
+
+	// --verbose (-v)
+	// UTILITY: verbose output
+	workflowsVerbose bool
 )
 
 var workflowsCmd = &cobra.Command{
@@ -36,8 +43,8 @@ Examples:
 }
 
 func init() {
-	workflowsCmd.Flags().StringVarP(&profileName, "profile", "p", "default", "Config profile to use")
 	workflowsCmd.Flags().BoolVarP(&wfWithDispatch, "with-dispatch", "w", false, "Show only workflows with 'workflow_dispatch' trigger")
+	workflowsCmd.Flags().BoolVarP(&workflowsVerbose, "verbose", "v", false, "Verbose output")
 
 	rootCmd.AddCommand(workflowsCmd)
 }
@@ -45,41 +52,42 @@ func init() {
 // runWorkflows is the main function for status command
 func runWorkflows(cmd *cobra.Command, args []string) error {
 	// if verbose mode is active
-	if verbose {
+	if workflowsVerbose {
 		fmt.Println("<!> Info: Verbose mode enabled")
 		fmt.Printf("   Profile: %s\n", profileName)
 	}
 
 	fmt.Println("❯ Listing available workflows...")
 
-	// creates new client with progileName
-	client, err := github.NewClientFromConfig(profileName)
+	ctx := context.Background()
+	cfg, err := config.Load()
 	if err != nil {
 		return err
 	}
 
-	owner, repo, err := client.GetDefaultRepository()
+	factory := platforms.NewFactory(cfg)
+
+	// create new client with profileName
+	client, err := factory.CreateClientAutoDetectPlatform(ctx, profileName)
 	if err != nil {
-		return err
+		errMsg := fmt.Errorf("<?> Error: Field to create client.\n<?> Error: %w.\n", err)
+		errorhandling.HandleError(errMsg)
 	}
+
+	owner, repo := client.GetRepository(ctx)
 
 	// if verbose mode is active
-	if verbose {
+	if workflowsVerbose {
 		fmt.Printf("</> Info: Repository: %s/%s\n", owner, repo)
 	}
 
-	var workflows []*gh.Workflow
+	listWorkflowsReq := types.ListWorkflowsRequest{
+		WithDispatch: wfWithDispatch,
+	}
 
-	if !wfWithDispatch {
-		workflows, err = client.ListWorkflows(owner, repo)
-		if err != nil {
-			return err
-		}
-	} else {
-		workflows, err = client.ListWorkflowsWithDispatchOnly(owner, repo)
-		if err != nil {
-			return err
-		}
+	workflows, err := client.ListWorkflows(ctx, &listWorkflowsReq)
+	if err != nil {
+		return err
 	}
 
 	if len(workflows) == 0 {
@@ -95,20 +103,20 @@ func runWorkflows(cmd *cobra.Command, args []string) error {
 	fmt.Printf("\n✓ Found %d workflow(s):\n\n", len(workflows))
 
 	for idx, wf := range workflows {
-		fmt.Printf("%d - workflow: %s\n", idx+1, wf.GetName())
-		fmt.Printf("   - File: %s\n", wf.GetPath())
-		fmt.Printf("   - State: %s\n", wf.GetState())
+		fmt.Printf("%d - workflow: %s\n", idx+1, wf.Name)
+		fmt.Printf("   - File: %s\n", wf.Path)
+		fmt.Printf("   - State: %s\n", wf.State)
 
 		hasDispatch := false
 
 		// if verbose mode is active
-		if verbose {
-			fmt.Printf("   - ID: %d\n", wf.GetID())
-			fmt.Printf("   - URL: %s\n", wf.GetHTMLURL())
+		if workflowsVerbose {
+			fmt.Printf("   - ID: %d\n", wf.ID)
+			fmt.Printf("   - URL: %s\n", wf.URL)
 		}
 
 		// if verbose mode is active
-		if !hasDispatch && verbose {
+		if !hasDispatch && workflowsVerbose {
 			fmt.Println("<!> Warning: Check if this workflow has 'workflow_dispatch' trigger")
 		}
 
@@ -117,7 +125,7 @@ func runWorkflows(cmd *cobra.Command, args []string) error {
 
 	fmt.Println("</> Info: Trigger a workflow with:")
 	if len(workflows) > 0 {
-		firstWorkflow := workflows[0].GetPath()
+		firstWorkflow := workflows[0].Path
 		fileName := firstWorkflow
 
 		if len(firstWorkflow) > len(".github/workflows/") {

@@ -2,6 +2,7 @@ package config
 
 import (
 	"fmt"
+	"strings"
 
 	"github.com/ignorant05/Uniflow/cmd/constants"
 )
@@ -57,4 +58,27 @@ func (cfg *Config) GetProfile(name string) (*Profile, error) {
 	}
 
 	return profile, nil
+}
+
+// GetPlatform retrieves platform using platform name: name
+//
+// Parameters:
+//   - platformName: platform name
+//
+// Error possible causes:
+//   - platform isn't configured for this profile
+//
+// Examples:
+// platform, err := p.GetPlatform("github")
+func (p *Profile) GetPlatform(platformName string) (interface{}, error) {
+	switch strings.ToLower(platformName) {
+	case strings.ToLower(constants.DEFAULT_CONFIG_PLATFORM):
+		if p.Github == nil {
+			return nil, fmt.Errorf("<?> Error: Github configuration not found for this profile\n\n")
+		}
+	default:
+		return nil, fmt.Errorf("<?> Error: Unsupported platform: %s\n\n", platformName)
+	}
+
+	return nil, nil
 }

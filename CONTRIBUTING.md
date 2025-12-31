@@ -5,7 +5,7 @@ Thank you for your interest in contributing to Uniflow! 🎉
 This document provides guidelines and instructions for contributing.
 
 ---
-## 📋 Table of Contents
+## Table of Contents
 
 - [Code of Conduct](#code-of-conduct)
 - [Getting Started](#getting-started)
@@ -17,7 +17,7 @@ This document provides guidelines and instructions for contributing.
 - [Community](#community)
 
 ---
-## 📜 Code of Conduct
+## Code of Conduct
 
 ### Our Pledge
 
@@ -41,7 +41,7 @@ We pledge to make participation in our project a harassment-free experience for 
 - Other conduct which could reasonably be considered inappropriate
 
 ---
-## 🚀 Getting Started
+## Getting Started
 
 ### Ways to Contribute
 
@@ -60,7 +60,7 @@ Look for issues labeled:
 - `documentation` - Documentation improvements
 
 ---
-## 🛠️ Development Setup
+## Development Setup
 
 ### Prerequisites
 
@@ -131,7 +131,7 @@ git push origin feature/my-feature
 # 6. Create Pull Request on GitHub
 ```
 
-## 🔄 Making Changes
+## Making Changes
 
 ### Branch Naming
 
@@ -211,88 +211,104 @@ Adds detailed installation steps for Linux, macOS, and Windows.
 Uniflow/
 .
 ├── cmd  # commands with their sources of truth, helpers and tests
-│   ├── config.go
-│   ├── config_test.go
-│   ├── constants
-│   │   └── config_constants.go
-│   ├── helpers
-│   │   ├── config_helper.go
-│   │   └── status_helper.go
-│   ├── init.go
-│   ├── init_test.go
-│   ├── logs.go
-│   ├── logs_test.go
-│   ├── root.go
-│   ├── status.go
-│   ├── status_test.go
-│   ├── trigger.go
-│   ├── trigger_test.go
-│   ├── workflows.go
-│   └── workflows_test.go
-├── configs   # platform's client configurations
-│   ├── github
-│   │   ├── constants
-│   │   │   └── github.go
-│   │   ├── github_client.go
-│   │   ├── github_factory.go
-│   │   ├── github_workflows.go
-│   │   └── helpers
-│   │       └── github_client_helper.go
-│   └── tests       # platforms's unit tests 
-│       └── unit
-│           └── github
-│               ├── clientCreation_test.go
-│               ├── getDefaultRepo_test.go
-│               ├── getWorkflowRun_test.go
-│               ├── listWorkflows_test.go
-│               ├── mock_server.go
-│               ├── triggerWorkflow_test.go
-│               └── workflowRunJobs_test.go
+│   ├── config.go
+│   ├── config_test.go
+│   ├── constants
+│   │   └── config_constants.go
+│   ├── helpers
+│   │   ├── config_helper.go
+│   │   ├── logs_helper.go
+│   │   └── status_helper.go
+│   ├── init.go
+│   ├── init_test.go
+│   ├── logs.go
+│   ├── logs_test.go
+│   ├── root.go
+│   ├── status.go
+│   ├── status_test.go
+│   ├── trigger.go
+│   ├── trigger_test.go
+│   ├── workflows.go
+│   └── workflows_test.go
 ├── CONTRIBUTING.md        # contribution guidelines
 ├── doc
-│   ├── commands.md        # commands documentation
-│   └── github-actions.md  # github-actions documentation
+│   ├── commands.md        # commands documentation
+│   └── github-actions.md  # github-actions documentation
 ├── go.mod
 ├── go.sum
 ├── install.sh        # Installation script
 ├── internal          # internal configurations
-│   ├── config
-│   │   ├── config.go
-│   │   ├── loader.go
-│   │   ├── platforms.go
-│   │   └── validator.go
-│   ├── constants
-│   │   ├── config
-│   │   │   ├── github_constants.go
-│   │   │   ├── loader_constants.go
-│   │   │   └── validator_constants.go
-│   │   ├── credentials
-│   │   │   └── keyring_constants.go
-│   │   └── logs
-│   │       └── streamer_constants.go
-│   ├── credentials
-│   │   └── keyring.go
-│   ├── errorHandling
-│   │   └── errorHandling.go
-│   ├── helpers
-│   │   ├── loader_helpers.go
-│   │   ├── logs_helper.go
-│   │   └── validator_helpers.go
-│   └── logs   
-│       ├── downloader.go
-│       ├── streamer.go
-│       └── streamer_test.go
+│   ├── config
+│   │   ├── config.go
+│   │   ├── loader.go
+│   │   ├── platforms.go
+│   │   └── validator.go
+│   ├── constants
+│   │   ├── config
+│   │   │   ├── github_constants.go
+│   │   │   ├── loader_constants.go
+│   │   │   └── validator_constants.go
+│   │   ├── credentials
+│   │   │   └── keyring_constants.go
+│   │   └── logs
+│   │       └── streamer_constants.go
+│   ├── credentials
+│   │   └── keyring.go
+│   ├── errorHandling
+│   │   └── errorHandling.go
+│   ├── helpers
+│   │   ├── loader_helpers.go
+│   │   ├── logs_helper.go
+│   │   └── validator_helpers.go
+│   └── logs   
+│       ├── downloader.go
+│       ├── streamer.go
+│       └── streamer_test.go
 ├── LICENSE
 ├── main.go           
 ├── makefile          # makefile for dev experience
+├── platforms
+│   ├── adapters
+│   │   └── github_adapter.go
+│   ├── constants
+│   │   ├── github_adapter_constants.go
+│   │   └── platforms_constants.go
+│   ├── factory.go
+│   ├── github
+│   │   ├── constants
+│   │   │   ├── downloader_constants.go
+│   │   │   ├── github.go
+│   │   │   └── streamer_constants.go
+│   │   ├── github_client.go
+│   │   ├── github_factory.go
+│   │   ├── github_workflows.go
+│   │   ├── helpers
+│   │   │   └── github_client_helper.go
+│   │   └── logs
+│   │       ├── downloader.go
+│   │       ├── streamer.go
+│   │       └── streamer_test.go
+│   ├── interface.go
+│   └── tests       # platforms's unit tests 
+│       └── unit
+│           └── github
+│               ├── clientCreation_test.go
+│               ├── getDefaultRepo_test.go
+│               ├── getWorkflowRun_test.go
+│               ├── listWorkflows_test.go
+│               ├── mock_server.go
+│               ├── triggerWorkflow_test.go
+│               └── workflowRunJobs_test.go
+├── types
+│   └── platforms.go
 ├── README.md
-└── replacements.txt  # Add your tokens here and filtre them with git filtre repo
-					  # Example: 
-					  # git filter-repo --force --replace-text replacements.txt
+├── replacements.txt  # Add your tokens here and filtre them with git filtre repo
+                      # Example: 
+                      # git filter-repo --force --replace-text replacements.txt
 ```
 
 ---
-## 📥 Pull Request Process
+## Pull Request Process
 
 ### Before Submitting
 
@@ -360,7 +376,7 @@ If you change functionality, update:
 - `docs/github-actions.md` - GitHub specifics
 
 ---
-## 🐛 Reporting Bugs
+## Reporting Bugs
 
 ### Bug Report Template
 
@@ -389,7 +405,7 @@ Any other information about the problem.
 ```
 
 ---
-## ✨ Requesting Features
+## Requesting Features
 
 ### Feature Request Template
 
@@ -408,7 +424,7 @@ Any other context, mockups, or examples.
 ```
 
 ---
-## 💬 Community
+## Community
 
 ### Getting Help
 
@@ -423,7 +439,7 @@ Any other context, mockups, or examples.
 - 📢 Follow announcements
 
 ---
-## 🎓 Learning Resources
+## Learning Resources
 
 ### Go Resources
 
@@ -442,7 +458,7 @@ Any other context, mockups, or examples.
 - [Workflow Syntax](https://docs.github.com/en/actions/reference/workflow-syntax-for-github-actions)
 
 ---
-## 📄 License
+## License
 
 By contributing, you agree that your contributions will be licensed under the MIT License.
 

@@ -23,6 +23,10 @@ var (
 	// --force (-f) flag
 	// Usage uniflow config list --show-secrets --force
 	force bool
+
+	// --verbose (-v)
+	// UTILITY: verbose output
+	configVerbose bool
 )
 
 // Command: config (or c)
@@ -137,6 +141,7 @@ func init() {
 	configListCmd.Flags().StringVarP(&profileFlag, "profile", "p", "default", "Profile to display")
 	configListCmd.Flags().BoolVarP(&showSecrets, "show-secrets", "s", false, "Show sensitive values (tokens)")
 	configListCmd.Flags().BoolVarP(&force, "force", "f", false, "Show full sensitive values even if it's longer than 8 characters in length")
+	configCmd.Flags().BoolVarP(&configVerbose, "verbose", "v", false, "verbose output")
 
 	// Subcommands: list, set, get, validate
 	configCmd.AddCommand(configListCmd)
@@ -194,7 +199,7 @@ func runConfigSet(cmd *cobra.Command, args []string) error {
 	key, val := args[0], args[1]
 
 	// if verbose mode active
-	if verbose {
+	if configVerbose {
 		fmt.Printf("</> Info: Setting %s = %s\n", key, val)
 	}
 

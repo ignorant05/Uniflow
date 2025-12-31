@@ -13,9 +13,13 @@ import (
 
 // Init command flags representatives
 var (
-	// --force (-f) flags
-	// Forces Initialization
+	// --force (-f) flag
+	// UTILITY: Forces Initialization
 	forceInit bool
+
+	// --verbose (-v)
+	// UTILITY: verbose output
+	initVerbose bool
 )
 
 // command: init
@@ -45,6 +49,7 @@ Example:
 // Commands and subcommands configuration
 func init() {
 	initCmd.Flags().BoolVarP(&forceInit, "force", "f", false, "Overwrite an existing configuration")
+	initCmd.Flags().BoolVarP(&initVerbose, "verbose", "v", false, "verbose output")
 	rootCmd.AddCommand(initCmd)
 }
 
@@ -57,7 +62,7 @@ func init() {
 //   - Permission error
 func runInit(cmd *cobra.Command, args []string) {
 	// if verbose mode active
-	if verbose {
+	if initVerbose {
 		fmt.Println("</> Info: Running in verbose mode...")
 	}
 	fmt.Println("❯ Initialize Uniflow configuration...")
@@ -116,7 +121,7 @@ func runInit(cmd *cobra.Command, args []string) {
 	fmt.Printf("✓ Created logs directory: %s\n", logsDir)
 
 	fmt.Println("\n✓ Initialization complete!")
-	fmt.Println("\n📝 Next steps:")
+	fmt.Println("\n❯ Next steps:")
 	fmt.Println("  1. Set your API tokens as environment variables:")
 	fmt.Println("     export GITHUB_TOKEN=your_token_here")
 	fmt.Println("\n  2. Or update the config file directly:")

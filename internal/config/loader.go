@@ -116,7 +116,7 @@ func Save(cfg *Config) error {
 	v.SetConfigFile(configPath)
 	v.SetConfigType("yaml")
 
-	v.Set(constants.DEFAULT_REPOSITORY_FIELD, cfg.DefaultPlatform)
+	v.Set(constants.DEFAULT_PLATFORM, cfg.DefaultPlatform)
 	v.Set(constants.VERSION, cfg.Version)
 	v.Set(constants.PROFILES, cfg.Profiles)
 
@@ -151,10 +151,11 @@ func Update(key, val string) error {
 		return fmt.Errorf("<?> Error: Invalid config key format. Use: profiles.<profile>.<platform>.<field>\n\n")
 	}
 
+	fmt.Println(parts)
+
 	switch parts[0] {
 	case constants.DEFAULT_PLATFORM:
 		cfg.DefaultPlatform = val
-
 	case constants.PROFILES:
 		if len(parts) < 4 {
 			return fmt.Errorf("invalid profile key format. Use: profiles.<profile>.<platform>.<field>\n\n")

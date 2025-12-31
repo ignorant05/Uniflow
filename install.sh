@@ -11,12 +11,12 @@ echo "===== Uniflow Installer  ===="
 echo "============================="
 echo ""
 echo "This installer will:"
-echo "1. Download the latest binary from GitHub releases"
-echo "2. Verify the checksum (if available)"
+echo "1. Download the latest binary from GitHub releases" 
+echo "2. Verify the checksum (if available)" 
 echo "3. Install to ~/.local/bin or /usr/local/bin"
 echo "4. Never ask for sudo unless necessary"
 echo ""
-read -p "Continue? [y/N] " -n 1 -r
+read -p "Continue? [y/n] " -n 1 -r
 echo
 
 if [[ ! $REPLY =~ ^[Yy]$ ]]; then
@@ -122,9 +122,9 @@ install_via_curl() {
 
 main() {
     echo ""
-    echo "┌──────────────────────────────────────------------─-┐"
-    echo "│ ---- Uniflow: CI/CD Orchestrator Installation ---- │"
-    echo "└─────────────────────────────────-----------─-─────-┘"
+    echo "┌────────────────────────────────────────────────────┐"
+    echo "│ ──── Uniflow: CI/CD Orchestrator Installation ──── │"
+    echo "└────────────────────────────────────────────────────┘"
     echo ""
 
     if command -v "$BINARY_NAME" &> /dev/null; then 

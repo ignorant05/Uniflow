@@ -37,13 +37,6 @@ func (e *ValidationError) Error() string {
 // errs := cfg.Validate()
 func (cfg *Config) Validate() []error {
 	var errors []error
-	if cfg.DefaultPlatform == "" {
-		errors = append(errors, &ValidationError{
-			Field:   constants.VALIDATOR_PLATFORM,
-			Message: "<?> Error: Default platform cannot be empty",
-		})
-
-	}
 
 	if !slices.Contains(constants.ValidPlarforms, cfg.DefaultPlatform) {
 		errors = append(errors, &ValidationError{
