@@ -84,7 +84,7 @@ func runStatusCmd(cmd *cobra.Command, args []string) {
 	// create new client with profileName
 	client, err := factory.CreateClientAutoDetectPlatform(ctx, profileName)
 	if err != nil {
-		errMsg := fmt.Errorf("<?> Error: Field to create client.\n<?> Error: %w.\n", err)
+		errMsg := fmt.Errorf("<?> Error: Field to create client.\n<?> Error: %w", err)
 		errorhandling.HandleError(errMsg)
 	}
 
@@ -173,7 +173,9 @@ func showWorkflowStatus(ctx context.Context, client platforms.PlatformClient, ow
 	}
 
 	// If it exists, getting workflowFile's runs
-	runs, err := client.ListWorkflowRuns(ctx, &listWorkflowRunsReq)
+	var runs []*types.Run
+
+	runs, err = client.ListWorkflowRuns(ctx, &listWorkflowRunsReq)
 	if err != nil {
 		if strings.Contains(err.Error(), "rate limit") {
 			fmt.Println("<?> Error: GitHub API rate limit exceeded")
@@ -184,8 +186,12 @@ func showWorkflowStatus(ctx context.Context, client platforms.PlatformClient, ow
 			time.Sleep(60 * time.Second)
 
 			runs, err = client.ListWorkflowRuns(ctx, &listWorkflowRunsReq)
+			if err != nil {
+				return err
+			}
+		} else {
+			return err
 		}
-		return err
 	}
 
 	if len(runs) == 0 {
@@ -272,7 +278,8 @@ func showAllWorkflowsStatus(ctx context.Context, client platforms.PlatformClient
 			Branch:       branch,
 			Limit:        tailLines,
 		}
-		runs, err := client.ListWorkflowRuns(ctx, &listWorkflowRunsReq)
+		var runs []*types.Run
+		runs, err = client.ListWorkflowRuns(ctx, &listWorkflowRunsReq)
 		if err != nil {
 			if strings.Contains(err.Error(), "rate limit") {
 				fmt.Println("<?> Error: GitHub API rate limit exceeded")
@@ -286,14 +293,15 @@ func showAllWorkflowsStatus(ctx context.Context, client platforms.PlatformClient
 				if err != nil {
 					return err
 				}
-			}
+			} else {
 
-			// if verbose mode is active
-			if verbose {
-				fmt.Printf("<?> Warning: Failed to get runs for %s: %v\n", wf.Name, err)
-			}
+				// if verbose mode is active
+				if verbose {
+					fmt.Printf("<?> Warning: Failed to get runs for %s: %v\n", wf.Name, err)
+				}
 
-			continue
+				continue
+			}
 		}
 
 		// if it has no runs, then print nothing and continue

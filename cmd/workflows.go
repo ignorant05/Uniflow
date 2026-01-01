@@ -70,7 +70,7 @@ func runWorkflows(cmd *cobra.Command, args []string) error {
 	// create new client with profileName
 	client, err := factory.CreateClientAutoDetectPlatform(ctx, profileName)
 	if err != nil {
-		errMsg := fmt.Errorf("<?> Error: Field to create client.\n<?> Error: %w.\n", err)
+		errMsg := fmt.Errorf("<?> Error: Field to create client.\n<?> Error: %w", err)
 		errorhandling.HandleError(errMsg)
 	}
 

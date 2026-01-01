@@ -25,8 +25,8 @@ func SetupTestClientWithMockServer(t *testing.T, handler http.HandlerFunc) (*htt
 
 	require.NoError(t, err)
 	baseURL, _ := url.Parse(server.URL + "/")
-	client.Client.BaseURL = baseURL
-	client.Client.UploadURL = baseURL
+	client.BaseURL = baseURL
+	client.UploadURL = baseURL
 
 	return server, client
 }

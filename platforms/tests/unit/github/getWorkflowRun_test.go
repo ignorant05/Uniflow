@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"testing"
 
+	errorhandling "github.com/ignorant05/Uniflow/internal/errorHandling"
 	mock "github.com/ignorant05/Uniflow/platforms/tests/unit/github"
 
 	gh "github.com/google/go-github/v57/github"
@@ -27,13 +28,16 @@ func TestGetWorkflowRun_Success(t *testing.T) {
 		}
 
 		w.Header().Set("Content-Type", "application/json")
-		json.NewEncoder(w).Encode(response)
+		err := json.NewEncoder(w).Encode(response)
+		if err != nil {
+			errorhandling.HandleError(err)
+		}
 	})
 
 	defer server.Close()
 
 	owner, repo, _ := client.GetDefaultRepository()
-	run, _, err := client.Client.Actions.GetWorkflowRunByID(
+	run, _, err := client.Actions.GetWorkflowRunByID(
 		client.Ctx,
 		owner,
 		repo,
@@ -60,13 +64,16 @@ func TestGetWorkflowRun_InProgress(t *testing.T) {
 		}
 
 		w.Header().Set("Content-Type", "application/json")
-		json.NewEncoder(w).Encode(response)
+		err := json.NewEncoder(w).Encode(response)
+		if err != nil {
+			errorhandling.HandleError(err)
+		}
 	})
 
 	defer server.Close()
 
 	owner, repo, _ := client.GetDefaultRepository()
-	run, _, err := client.Client.Actions.GetWorkflowRunByID(
+	run, _, err := client.Actions.GetWorkflowRunByID(
 		client.Ctx,
 		owner,
 		repo,
@@ -92,13 +99,16 @@ func TestGetWorkflowRun_Failure(t *testing.T) {
 		}
 
 		w.Header().Set("Content-Type", "application/json")
-		json.NewEncoder(w).Encode(response)
+		err := json.NewEncoder(w).Encode(response)
+		if err != nil {
+			errorhandling.HandleError(err)
+		}
 	})
 
 	defer server.Close()
 
 	owner, repo, _ := client.GetDefaultRepository()
-	run, _, err := client.Client.Actions.GetWorkflowRunByID(
+	run, _, err := client.Actions.GetWorkflowRunByID(
 		client.Ctx,
 		owner,
 		repo,

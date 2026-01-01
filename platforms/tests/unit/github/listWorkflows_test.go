@@ -9,6 +9,7 @@ import (
 
 	gh "github.com/google/go-github/v57/github"
 	"github.com/ignorant05/Uniflow/internal/config"
+	errorhandling "github.com/ignorant05/Uniflow/internal/errorHandling"
 	"github.com/ignorant05/Uniflow/platforms/github"
 	mock "github.com/ignorant05/Uniflow/platforms/tests/unit/github"
 	"github.com/stretchr/testify/assert"
@@ -38,7 +39,10 @@ func TestListWorkflows_Success(t *testing.T) {
 		}
 
 		w.Header().Set("Content-Type", "application/json")
-		json.NewEncoder(w).Encode(response)
+		err := json.NewEncoder(w).Encode(response)
+		if err != nil {
+			errorhandling.HandleError(err)
+		}
 
 	})
 
@@ -58,9 +62,12 @@ func TestListWorkflows_AuthenticationFailure(t *testing.T) {
 	server, client := mock.SetupTestClientWithMockServer(t, func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusUnauthorized)
-		json.NewEncoder(w).Encode(map[string]string{
+		err := json.NewEncoder(w).Encode(map[string]string{
 			"error": "invalid credentials",
 		})
+		if err != nil {
+			errorhandling.HandleError(err)
+		}
 
 	})
 
@@ -77,9 +84,13 @@ func TestListWorkflowsRateLimit(t *testing.T) {
 		w.Header().Set("X-RateLimit-Remaining", "0")
 		w.Header().Set("X-RateLimit-Reset", "1234567890")
 		w.WriteHeader(http.StatusForbidden)
-		json.NewEncoder(w).Encode(map[string]string{
+		err := json.NewEncoder(w).Encode(map[string]string{
 			"error": "api rate limit exceeded",
 		})
+
+		if err != nil {
+			errorhandling.HandleError(err)
+		}
 	})
 
 	defer server.Close()
@@ -98,7 +109,10 @@ func TestListWorkflows_Empty(t *testing.T) {
 		}
 
 		w.Header().Set("Content-Type", "application/json")
-		json.NewEncoder(w).Encode(response)
+		err := json.NewEncoder(w).Encode(response)
+		if err != nil {
+			errorhandling.HandleError(err)
+		}
 	})
 
 	defer server.Close()
@@ -119,7 +133,7 @@ func TestListWorkflows_NetworkError(t *testing.T) {
 	client, _ := github.NewClient(context.Background(), cfg)
 
 	badURL, _ := url.Parse("http://localhost:12345")
-	client.Client.BaseURL = badURL
+	client.BaseURL = badURL
 
 	_, err := client.ListWorkflows("ignorant05", "Uniflow")
 

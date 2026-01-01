@@ -33,7 +33,7 @@ func Load() (*Config, error) {
 	}
 
 	if _, err := os.Stat(configPath); os.IsNotExist(err) {
-		return nil, fmt.Errorf("<?> Error: Configuration file was not found at %s.\nPlease run: 'uniflow init' to create it.\n\n", configPath)
+		return nil, fmt.Errorf("<?> Error: Configuration file was not found at %s.\nPlease run: 'uniflow init' to create it", configPath)
 	}
 
 	v := viper.New()
@@ -41,16 +41,16 @@ func Load() (*Config, error) {
 	v.SetConfigType("yaml")
 
 	if err := v.ReadInConfig(); err != nil {
-		return nil, fmt.Errorf("<?> Error: Failed to read configuration file\nError: %w\n\n", err)
+		return nil, fmt.Errorf("<?> Error: Failed to read configuration file\nError: %w", err)
 	}
 
 	var cfg Config
 	if err := v.Unmarshal(&cfg); err != nil {
-		return nil, fmt.Errorf("<?> Error: Failed to parse configuration file\nError: %w\n\n", err)
+		return nil, fmt.Errorf("<?> Error: Failed to parse configuration file\nError: %w", err)
 	}
 
 	if err := resolveEnvVars(&cfg); err != nil {
-		return nil, fmt.Errorf("<?> Error: Failed to resolve environment variables\nError: %w\n\n", err)
+		return nil, fmt.Errorf("<?> Error: Failed to resolve environment variables\nError: %w", err)
 	}
 
 	return &cfg, nil
@@ -121,7 +121,7 @@ func Save(cfg *Config) error {
 	v.Set(constants.PROFILES, cfg.Profiles)
 
 	if err := v.WriteConfig(); err != nil {
-		return fmt.Errorf("<?> Error : Failed to save configuration file.\nError: %w\n\n", err)
+		return fmt.Errorf("<?> Error : Failed to save configuration file.\nError: %w", err)
 	}
 
 	return nil
@@ -148,7 +148,7 @@ func Update(key, val string) error {
 
 	parts := strings.Split(key, ".")
 	if len(parts) < 2 {
-		return fmt.Errorf("<?> Error: Invalid config key format. Use: profiles.<profile>.<platform>.<field>\n\n")
+		return fmt.Errorf("<?> Error: Invalid config key format. Use: profiles.<profile>.<platform>.<field>")
 	}
 
 	fmt.Println(parts)
@@ -158,7 +158,7 @@ func Update(key, val string) error {
 		cfg.DefaultPlatform = val
 	case constants.PROFILES:
 		if len(parts) < 4 {
-			return fmt.Errorf("invalid profile key format. Use: profiles.<profile>.<platform>.<field>\n\n")
+			return fmt.Errorf("invalid profile key format. Use: profiles.<profile>.<platform>.<field>")
 		}
 
 		profileName, platform, field := parts[1], parts[2], parts[3]
@@ -173,7 +173,7 @@ func Update(key, val string) error {
 		}
 
 	default:
-		return fmt.Errorf("<?> Error: Unknown config section: %s\n\n", parts[0])
+		return fmt.Errorf("<?> Error: Unknown config section: %s", parts[0])
 	}
 
 	return Save(cfg)
@@ -209,10 +209,10 @@ func updatePlatformField(profile *Profile, platform, field, val string) error {
 		case constants.BASE_URL_FIELD:
 			profile.Github.BaseURL = val
 		default:
-			return fmt.Errorf("<?> Error: Unknown github field: %s\n\n", field)
+			return fmt.Errorf("<?> Error: Unknown github field: %s", field)
 		}
 	default:
-		return fmt.Errorf("<?> Error: Unsupported platform: %s\n\n", platform)
+		return fmt.Errorf("<?> Error: Unsupported platform: %s", platform)
 	}
 
 	return nil

@@ -31,7 +31,9 @@ type RepositoryInfo struct {
 //   - s: (eg: "owner/repo")
 //
 // Return an error if:
-//    invalid string forma
+//
+//	
+//	invalid string forma
 //
 // Example:
 // owner, repo := helpers.ParseRepository("ignorant05/Uniflow")
@@ -39,7 +41,7 @@ func ParseRepository(s string) (owner, repo string, err error) {
 	parts := splitRepository(s)
 
 	if len(parts) != 2 {
-		return "", "", fmt.Errorf("<?> Error: Invalid format.\n</> Info: Must be in <owner/repo> format.\n\n")
+		return "", "", fmt.Errorf("<?> Error: Invalid format.\n</> Info: Must be in <owner/repo> format")
 	}
 
 	return parts[0], parts[1], nil

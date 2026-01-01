@@ -26,12 +26,6 @@ func TestClientWithToken(t *testing.T) {
 
 // Testing client creation without (with invalid) token
 func TestClientWithoutToken(t *testing.T) {
-	// Remove the default token (if there is in the your env)
-	token := os.Getenv("GITHUB_TOKEN")
-
-	defer os.Setenv("GITHUB_TOKEN", token)
-	os.Unsetenv("GITHUB_TOKEN")
-
 	cfg := &config.GithubConfig{
 		Token: "",
 	}
@@ -39,17 +33,17 @@ func TestClientWithoutToken(t *testing.T) {
 	_, err := github.NewClient(context.Background(), cfg)
 
 	assert.Error(t, err)
-	assert.Contains(t, err.Error(), "GITHUB_TOKEN")
+	assert.Contains(t, err.Error(), "ACCESS_TOKEN")
 }
 
 // Testing client creation with token from env (as env variable)
-// Make sure to set an env variable called "GITHUB_TOKEN" for this one before launching it or i'll fail
-// use export GITHUB_TOKEN="ur token here"
+// Make sure to set an env variable called "ACCESS_TOKEN" for this one before launching it or i'll fail
+// use export ACCESS_TOKEN="ur token here"
 func TestClientWithTokenFromEnv(t *testing.T) {
 	// Uncomment the next line and set ur token here for testing and place it in a replacements.txt (if you want to re-push this file again)
-	// os.Setenv("GITHUB_TOKEN", "your token here")
+	// os.Setenv("ACCESS_TOKEN", "your token here")
 
-	token := os.Getenv("GITHUB_TOKEN")
+	token := os.Getenv("ACCESS_TOKEN")
 
 	cfg := &config.GithubConfig{
 		Token: token,
@@ -64,7 +58,7 @@ func TestClientWithTokenFromEnv(t *testing.T) {
 
 // Testing client creation with custom enterpise URL
 func TestClientWithEnterpriseURL(t *testing.T) {
-	token := os.Getenv("GITHUB_TOKEN")
+	token := os.Getenv("ACCESS_TOKEN")
 	baseURL := "https://github.enterprise.com"
 
 	cfg := &config.GithubConfig{

@@ -24,18 +24,18 @@ import (
 func NewClientFromConfig(profileName string) (*Client, error) {
 	cfg, err := config.Load()
 	if err != nil {
-		return nil, fmt.Errorf("<?> Error: Failed to load configuration file.\n<?> Error: %w.\n\n", err)
+		return nil, fmt.Errorf("<?> Error: Failed to load configuration file.\n<?> Error: %w", err)
 	}
 
 	profile, err := cfg.GetProfile(profileName)
 	if err != nil {
-		return nil, fmt.Errorf("<?> Error: Failed to get profile.\n<?> Error: %w.\n\n", err)
+		return nil, fmt.Errorf("<?> Error: Failed to get profile.\n<?> Error: %w", err)
 	}
 
 	ctx := context.Background()
 	client, err := NewClientFromProfile(ctx, profile)
 	if err != nil {
-		return nil, fmt.Errorf("<?> Error: Failed to create github client.\n<?> Error: %w.\n\n", err)
+		return nil, fmt.Errorf("<?> Error: Failed to create github client.\n<?> Error: %w", err)
 	}
 
 	return client, nil
@@ -71,12 +71,12 @@ func NewDefaultClient() (*Client, error) {
 //
 //	err := TestConnection()
 func (c *Client) TestConnection() error {
-	user, _, err := c.Client.Users.Get(c.Ctx, "")
+	user, _, err := c.Users.Get(c.Ctx, "")
 	if err != nil {
 		if ghErr, ok := err.(*github.ErrorResponse); ok {
 			fmt.Printf("GitHub API Error: %v (Status: %v)\n", ghErr.Message, ghErr.Response.StatusCode)
 		}
-		return fmt.Errorf("authentication failed: %w\n\n", err)
+		return fmt.Errorf("authentication failed: %w", err)
 	}
 
 	fmt.Printf("✓ Successfully authenticated as: %s\n", user.GetLogin())
@@ -95,9 +95,9 @@ func (c *Client) TestConnection() error {
 //
 //	info, err := GetRepositoryInfo("owner", "repo")
 func (c *Client) GetRepositoryInfo(owner, repo string) (*types.RepositoryInfo, error) {
-	repository, _, err := c.Client.Repositories.Get(c.Ctx, owner, repo)
+	repository, _, err := c.Repositories.Get(c.Ctx, owner, repo)
 	if err != nil {
-		return nil, fmt.Errorf("<?> Error: Failed to get repository %s info.\n<?> Error: %w.\n\n", repo, err)
+		return nil, fmt.Errorf("<?> Error: Failed to get repository %s info.\n<?> Error: %w", repo, err)
 	}
 
 	return &types.RepositoryInfo{

@@ -6,6 +6,7 @@ import (
 	"testing"
 
 	gh "github.com/google/go-github/v57/github"
+	errorhandling "github.com/ignorant05/Uniflow/internal/errorHandling"
 	mock "github.com/ignorant05/Uniflow/platforms/tests/unit/github"
 
 	"github.com/stretchr/testify/assert"
@@ -37,7 +38,10 @@ func TestListWorkflowRunJobs_Success(t *testing.T) {
 			},
 		}
 		w.Header().Set("Content-Type", "application/json")
-		json.NewEncoder(w).Encode(response)
+		err := json.NewEncoder(w).Encode(response)
+		if err != nil {
+			errorhandling.HandleError(err)
+		}
 	})
 
 	defer server.Close()
@@ -65,9 +69,13 @@ func TestListWorkflowRunJobs_Failure(t *testing.T) {
 		w.WriteHeader(http.StatusNotFound)
 
 		w.Header().Set("Content-Type", "application/json")
-		json.NewEncoder(w).Encode(map[string]interface{}{
+		err := json.NewEncoder(w).Encode(map[string]interface{}{
 			"error": "no job found by id",
 		})
+
+		if err != nil {
+			errorhandling.HandleError(err)
+		}
 	})
 
 	defer server.Close()

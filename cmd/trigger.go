@@ -77,7 +77,7 @@ func init() {
 // trigger command main function
 func runTriggerCmd(cmd *cobra.Command, args []string) {
 	if len(args) < 1 {
-		errMsg := fmt.Errorf("<?> Error: Not enough arguments.\n")
+		errMsg := fmt.Errorf("<?> Error: Not enough arguments")
 		errorhandling.HandleError(errMsg)
 	}
 
@@ -107,7 +107,7 @@ func runTriggerCmd(cmd *cobra.Command, args []string) {
 	// create new client with profileName
 	client, err := factory.CreateClientAutoDetectPlatform(ctx, profileName)
 	if err != nil {
-		errMsg := fmt.Errorf("<?> Error: Field to create client.\n<?> Error: %w.\n", err)
+		errMsg := fmt.Errorf("<?> Error: Field to create client.\n<?> Error: %w", err)
 		errorhandling.HandleError(errMsg)
 	}
 
@@ -157,7 +157,7 @@ func runTriggerCmd(cmd *cobra.Command, args []string) {
 	// retrieves repository information
 	repoInfo, err := client.GetRepositoryInfo(ctx)
 	if err != nil {
-		errMsg := fmt.Errorf("<?> Error: Failed to retrieve repository %s/%s info.\n<?> Error: %w.\n", owner, repo, err)
+		errMsg := fmt.Errorf("<?> Error: Failed to retrieve repository %s/%s info.\n<?> Error: %w", owner, repo, err)
 		errorhandling.HandleError(errMsg)
 	} else {
 		fmt.Printf("   View at: %s/actions\n", repoInfo.HTMLURL)
@@ -211,7 +211,11 @@ func runTriggerCmd(cmd *cobra.Command, args []string) {
 				})
 
 			setupGracefulShutdown(streamer)
-			streamer.Stream()
+			err := streamer.Stream()
+			if err != nil {
+				errorhandling.HandleError(err)
+			}
+
 		} else {
 			fmt.Println("<!> Warn:  Workflow didn't start within expected time.")
 			fmt.Printf("   View logs later with: uniflow logs --run-id %d\n", runID)

@@ -137,7 +137,7 @@ func runLogsCmd(cmd *cobra.Command, args []string) {
 	// create new client with profileName
 	client, err := factory.CreateClientAutoDetectPlatform(ctx, profileName)
 	if err != nil {
-		errMsg := fmt.Errorf("<?> Error: Field to create client.\n<?> Error: %w.\n", err)
+		errMsg := fmt.Errorf("<?> Error: Field to create client.\n<?> Error: %w", err)
 		errorhandling.HandleError(errMsg)
 	}
 
@@ -145,8 +145,8 @@ func runLogsCmd(cmd *cobra.Command, args []string) {
 
 	// if Verbose mode is active
 	if logsVerbose {
-		fmt.Printf("</> Info: Repository: %s/%s\n", owner, repo)
-		fmt.Printf("</> Info: Platform: %s\n", platformFlag)
+		fmt.Printf("</> Info: Repository: %s/%s", owner, repo)
+		fmt.Printf("</> Info: Platform: %s", platformFlag)
 	}
 
 	// getting workflow runID (and name)
@@ -252,7 +252,7 @@ func resolveRunID(ctx context.Context, client platforms.PlatformClient, owner, r
 		}
 
 		if workflowID == 0 {
-			return 0, "", fmt.Errorf("<?> Error: Invalid workflow.\n")
+			return 0, "", fmt.Errorf("<?> Error: Invalid workflow")
 		}
 
 		workflowRunLogsReq := types.LogsRequest{
@@ -266,7 +266,10 @@ func resolveRunID(ctx context.Context, client platforms.PlatformClient, owner, r
 		}
 
 		if downloadOnly {
-			ghlogs.DownloadLogs(logsURL.URL, output)
+			err := ghlogs.DownloadLogs(logsURL.URL, output)
+			if err != nil {
+				return 0, "", err
+			}
 		}
 
 		listWorkflowRunsReq := types.ListWorkflowRunsRequest{
@@ -278,7 +281,7 @@ func resolveRunID(ctx context.Context, client platforms.PlatformClient, owner, r
 
 		runs, err := client.ListWorkflowRuns(ctx, &listWorkflowRunsReq)
 		if err != nil || len(runs) <= 0 {
-			return 0, "", fmt.Errorf("<?> Error: cannot retrieve workflow runs.\n<?> Workflow: %s\n", workflowName)
+			return 0, "", fmt.Errorf("<?> Error: cannot retrieve workflow runs.\n<?> Workflow: %s", workflowName)
 		}
 
 		return runs[0].RunID, workflowName, nil

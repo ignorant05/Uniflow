@@ -223,9 +223,5 @@ func IsPlatformSupported(platform string) bool {
 	platform = strings.ToLower(platform)
 	supportedPlatforms := ListSupportedPlatforms()
 
-	if slices.Contains(supportedPlatforms, platform) {
-		return true
-	}
-
-	return false
+	return slices.Contains(supportedPlatforms, platform)
 }
