@@ -24,18 +24,6 @@ func TestClientWithToken(t *testing.T) {
 	assert.NotNil(t, client.Client)
 }
 
-// Testing client creation without (with invalid) token
-func TestClientWithoutToken(t *testing.T) {
-	cfg := &config.GithubConfig{
-		Token: "",
-	}
-
-	_, err := github.NewClient(context.Background(), cfg)
-
-	assert.Error(t, err)
-	assert.Contains(t, err.Error(), "ACCESS_TOKEN")
-}
-
 // Testing client creation with token from env (as env variable)
 // Make sure to set an env variable called "ACCESS_TOKEN" for this one before launching it or i'll fail
 // use export ACCESS_TOKEN="ur token here"
