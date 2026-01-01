@@ -299,6 +299,10 @@ Uniflow/
 │               ├── mock_server.go
 │               ├── triggerWorkflow_test.go
 │               └── workflowRunJobs_test.go
+├── .github           # Workflows directory
+│   └── workflows
+│       └── ci.yaml   # Continuous integration workflow file
+├── .gitignore
 ├── types
 │   └── platforms.go
 ├── README.md
