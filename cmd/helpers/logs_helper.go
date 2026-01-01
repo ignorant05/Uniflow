@@ -15,5 +15,5 @@ func ExtractGithubClient(client platforms.PlatformClient) (*github.Client, error
 		return g.GetGithubClient()
 	}
 
-	return nil, fmt.Errorf("<?> Error: Not a GitHub client\n")
+	return nil, fmt.Errorf("<?> Error: Not a GitHub client")
 }

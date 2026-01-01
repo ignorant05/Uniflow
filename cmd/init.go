@@ -91,7 +91,7 @@ func runInit(cmd *cobra.Command, args []string) {
 	// Returns error
 	// To avoid overwriting existing files without user permissions
 	if _, err := os.Stat(configPath); err == nil && !forceInit {
-		errMsg := fmt.Errorf("<?> Error: Configuration path already exists: %s.\n<?> Error: %w.\n<.> Solution: use --force (or -f) to overwrite.\n", configPath, err)
+		errMsg := fmt.Errorf("<?> Error: Configuration path already exists: %s.\n<?> Error: %w\n<.> Solution: use --force (or -f) to overwrite", configPath, err)
 		errorhandling.HandleError(errMsg)
 	}
 
@@ -101,13 +101,13 @@ func runInit(cmd *cobra.Command, args []string) {
 	// Generate configuration
 	data, err := yaml.Marshal(cfg)
 	if err != nil {
-		errMsg := fmt.Errorf("<?> Error: Failed to generate configuration file.\n<?> Error: %w.\n", err)
+		errMsg := fmt.Errorf("<?> Error: Failed to generate configuration file.\n<?> Error: %w", err)
 		errorhandling.HandleError(errMsg)
 	}
 
 	// Write to file: saving data
 	if err := os.WriteFile(configPath, data, 0600); err != nil {
-		errMsg := fmt.Errorf("<?> Error: Failed to write configuration file at %s.\n<?> Error: %w.\n", configPath, err)
+		errMsg := fmt.Errorf("<?> Error: Failed to write configuration file at %s.\n<?> Error: %w", configPath, err)
 		errorhandling.HandleError(errMsg)
 	}
 	fmt.Printf("✓ Created configuration file at: %s.", configPath)

@@ -13,7 +13,7 @@ func GetConfigDir() (string, error) {
 	homeDir, err := os.UserHomeDir()
 
 	if err != nil {
-		return "", fmt.Errorf("<?> Error: Failed to get user home directory...\n<?> Error: %w\n\n", err)
+		return "", fmt.Errorf("<?> Error: Failed to get user home directory...\n<?> Error: %w", err)
 	}
 
 	return filepath.Join(homeDir, constants.DEFAULT_CONFIG_DIR_PATH), nil

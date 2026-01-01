@@ -192,7 +192,7 @@ func runConfigList(cmd *cobra.Command, args []string) error {
 func runConfigSet(cmd *cobra.Command, args []string) error {
 	// Verify args length (we need two at a time)
 	if len(args) != 2 {
-		return fmt.Errorf("<?> Error: Not enough/or invalid arguments.\n</> Info: Please verify your format.\n</> Info: must be:\n  uniflow config set <key> <val>.\n\n")
+		return fmt.Errorf("<?> Error: Not enough/or invalid arguments.\n</> Info: Please verify your format.\n</> Info: must be:\n  uniflow config set <key> <val> ")
 	}
 
 	// Parses both key and value
@@ -216,7 +216,7 @@ func runConfigSet(cmd *cobra.Command, args []string) error {
 func runConfigGet(cmd *cobra.Command, args []string) error {
 	// Verify args length (we need only one at a time)
 	if len(args) != 1 {
-		return fmt.Errorf("<?> Error: Not enough/or invalid arguments.\n</> Info: Please verify your format.\n</> Info: must be:\n  uniflow config get <key>.\n\n")
+		return fmt.Errorf("<?> Error: Not enough/or invalid arguments.\n</> Info: Please verify your format.\n</> Info: must be:\n  uniflow config get <key>")
 	}
 
 	// Parsing key
@@ -238,7 +238,7 @@ func runConfigGet(cmd *cobra.Command, args []string) error {
 		fmt.Println(cfg.Version)
 	case constants.PROFILES:
 		if len(parts) < 4 {
-			return fmt.Errorf("<?> Error: Invalid key format.\n</> Use: profiles.<profile>.<platform>.<field>\n")
+			return fmt.Errorf("<?> Error: Invalid key format.\n</> Use: profiles.<profile>.<platform>.<field> ")
 		}
 
 		profileName, platform, filed := parts[1], parts[2], parts[3]
@@ -326,10 +326,10 @@ func getPlatformFileValue(profile *config.Profile, platform, field string) (stri
 			case constants.BASE_URL_FIELD:
 				return profile.Github.BaseURL, nil
 			default:
-				return "", fmt.Errorf("<?> Error: Invalid field: %s.\n", field)
+				return "", fmt.Errorf("<?> Error: Invalid field: %s", field)
 			}
 		}
 	}
 
-	return "", fmt.Errorf("<?> Error: Unknown platform: %s.\n", platform)
+	return "", fmt.Errorf("<?> Error: Unknown platform: %s", platform)
 }

@@ -86,7 +86,7 @@ func (a *GithubAdapter) TriggerWorkflow(ctx context.Context, req *types.TriggerR
 	}
 
 	if workflowID == 0 {
-		return nil, fmt.Errorf("<?> Error: workflow not found: %s\n", req.WorkflowName)
+		return nil, fmt.Errorf("<?> Error: workflow not found: %s", req.WorkflowName)
 	}
 
 	runs, err := a.Client.GetWorkflowRuns(a.owner, a.repo, workflowID)
@@ -134,7 +134,7 @@ func (a *GithubAdapter) GetStatus(ctx context.Context, req *types.StatusRequest)
 		status.Conclusion = run.GetConclusion()
 	}
 
-	if run.GetUpdatedAt().Time.GoString() != "" {
+	if run.GetUpdatedAt().GoString() != "" {
 		completedAt := run.GetUpdatedAt().Time
 		status.CompletedAt = completedAt
 		status.Duration = completedAt.Sub(run.GetRunStartedAt().Time)

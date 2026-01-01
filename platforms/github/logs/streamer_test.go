@@ -2,6 +2,7 @@ package github
 
 import (
 	"context"
+	"fmt"
 	"testing"
 	"time"
 
@@ -107,14 +108,20 @@ func TestStreamerStop(t *testing.T) {
 	case <-streamer.ctx.Done():
 		t.Error("Context should not be done initially")
 	default:
-		t.Context().Err()
+		err := t.Context().Err()
+		if err != nil {
+			fmt.Printf("<?> Error: %v\n", err)
+		}
 	}
 
 	streamer.Stop()
 
 	select {
 	case <-streamer.ctx.Done():
-		t.Context().Err()
+		err := t.Context().Err()
+		if err != nil {
+			fmt.Printf("<?> Error: %v\n", err)
+		}
 
 	case <-time.After(100 * time.Millisecond):
 		t.Error("Context should be cancelled after using streamer.Stop()")

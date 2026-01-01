@@ -35,7 +35,7 @@ func (c *Client) TriggerWorkflow(owner, repo, workflowFileName, ref string, inpu
 		Inputs: inputs,
 	}
 
-	_, err := c.Client.Actions.CreateWorkflowDispatchEventByFileName(
+	_, err := c.Actions.CreateWorkflowDispatchEventByFileName(
 		c.Ctx,
 		owner,
 		repo,
@@ -44,7 +44,7 @@ func (c *Client) TriggerWorkflow(owner, repo, workflowFileName, ref string, inpu
 	)
 
 	if err != nil {
-		return fmt.Errorf("<?> Error: Failed to trigger workflow.\n<?> Error: %w\n\n", err)
+		return fmt.Errorf("<?> Error: Failed to trigger workflow.\n<?> Error: %w", err)
 	}
 
 	return nil
@@ -79,7 +79,7 @@ func (c *Client) TriggerDefaultWorkflow(workflowFileName, ref string, inputs map
 func (c *Client) ListWorkflows(owner, repo string) ([]*github.Workflow, error) {
 	opts := &github.ListOptions{PerPage: ghconstants.DEFAULT_PER_PAGE}
 
-	workflows, _, err := c.Client.Actions.ListWorkflows(c.Ctx, owner, repo, opts)
+	workflows, _, err := c.Actions.ListWorkflows(c.Ctx, owner, repo, opts)
 	if err != nil {
 		return nil, err
 	}
@@ -106,7 +106,7 @@ func (c *Client) ListWorkflowJobs(owner, repo string, runID int64) ([]*github.Wo
 		ListOptions: github.ListOptions{PerPage: ghconstants.DEFAULT_PER_PAGE},
 	}
 
-	jobs, _, err := c.Client.Actions.ListWorkflowJobs(c.Ctx, owner, repo, runID, opts)
+	jobs, _, err := c.Actions.ListWorkflowJobs(c.Ctx, owner, repo, runID, opts)
 	if err != nil {
 		return nil, err
 	}
@@ -132,9 +132,9 @@ func (c *Client) GetWorkflowRuns(owner, repo string, workflowID int64) ([]*githu
 	opts := &github.ListWorkflowRunsOptions{
 		ListOptions: github.ListOptions{PerPage: ghconstants.DEFAULT_PER_PAGE},
 	}
-	runs, _, err := c.Client.Actions.ListWorkflowRunsByID(c.Ctx, owner, repo, workflowID, opts)
+	runs, _, err := c.Actions.ListWorkflowRunsByID(c.Ctx, owner, repo, workflowID, opts)
 	if err != nil {
-		return nil, fmt.Errorf("<?> Error: Failed to get workflow runs by ID: %d.\n<?> Error: %w\n\n", workflowID, err)
+		return nil, fmt.Errorf("<?> Error: Failed to get workflow runs by ID: %d.\n<?> Error: %w", workflowID, err)
 	}
 
 	return runs.WorkflowRuns, nil
@@ -155,9 +155,9 @@ func (c *Client) GetWorkflowRuns(owner, repo string, workflowID int64) ([]*githu
 //
 //	workflows, err := client.GetWorkflowRunStatus("owner", "repo", 12345)
 func (c *Client) GetWorkflowRunStatus(owner, repo string, runID int64) (*github.WorkflowRun, error) {
-	run, _, err := c.Client.Actions.GetWorkflowRunByID(c.Ctx, owner, repo, runID)
+	run, _, err := c.Actions.GetWorkflowRunByID(c.Ctx, owner, repo, runID)
 	if err != nil {
-		return nil, fmt.Errorf("<?> Error: Failed to get workflow run status by runID: %d.\n<?> Error: %w\n\n", runID, err)
+		return nil, fmt.Errorf("<?> Error: Failed to get workflow run status by runID: %d.\n<?> Error: %w", runID, err)
 	}
 
 	return run, nil
@@ -178,9 +178,9 @@ func (c *Client) GetWorkflowRunStatus(owner, repo string, runID int64) (*github.
 //
 //	logs, err := client.GetWorkflowRunLogs("owner", "repo", 12345)
 func (c *Client) GetWorkflowRunLogs(owner, repo string, runID int64) (string, error) {
-	url, _, err := c.Client.Actions.GetWorkflowRunLogs(c.Ctx, owner, repo, runID, constants.GITHUB_LOGS_MAX_INDIRECT)
+	url, _, err := c.Actions.GetWorkflowRunLogs(c.Ctx, owner, repo, runID, constants.GITHUB_LOGS_MAX_INDIRECT)
 	if err != nil {
-		return "", fmt.Errorf("<?> Error: Failed to get workflow run logs by runID: %d.\n<?> Error: %w\n\n", runID, err)
+		return "", fmt.Errorf("<?> Error: Failed to get workflow run logs by runID: %d.\n<?> Error: %w", runID, err)
 	}
 
 	return url.String(), nil
@@ -201,9 +201,9 @@ func (c *Client) GetWorkflowRunLogs(owner, repo string, runID int64) (string, er
 //
 //	err := client.CancelWorkflowRun("owner", "repo", 12345)
 func (c *Client) CancelWorkflowRun(owner, repo string, runID int64) error {
-	_, err := c.Client.Actions.CancelWorkflowRunByID(c.Ctx, owner, repo, runID)
+	_, err := c.Actions.CancelWorkflowRunByID(c.Ctx, owner, repo, runID)
 	if err != nil {
-		return fmt.Errorf("<?> Error: Failed to cancel workflow run with runID: %d.\n<?> Error: %w.\n\n", runID, err)
+		return fmt.Errorf("<?> Error: Failed to cancel workflow run with runID: %d.\n<?> Error: %w", runID, err)
 	}
 
 	return nil
@@ -276,7 +276,7 @@ func (c *Client) FilterWorkflowsWithDispatchOnly(owner, repo string) ([]string, 
 	)
 
 	if err != nil {
-		return nil, fmt.Errorf("<?> Error: Failed to get workflows.\n<?> Error: %w.\n\n", err)
+		return nil, fmt.Errorf("<?> Error: Failed to get workflows.\n<?> Error: %w", err)
 	}
 
 	for _, content := range dirContent {

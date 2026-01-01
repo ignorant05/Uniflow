@@ -48,8 +48,8 @@ type Streamer struct {
 	showTime  bool
 	colorize  bool
 
-	lastLogLine int
-	seenJobs    map[int64]bool
+	// lastLogLine int
+	seenJobs map[int64]bool
 }
 
 // NewStreamer creates new streamer
@@ -394,7 +394,11 @@ func (s *Streamer) formatTimestamp(timestamp string) string {
 // s.printJobHeader(job)
 func (s *Streamer) printJobHeader(job *gh.WorkflowJob) {
 	if s.colorize {
-		color.New(color.Bold, color.FgCyan).Printf("\nJob: %s\n", job.GetName())
+		_, err := color.New(color.Bold, color.FgCyan).Printf("\nJob: %s\n", job.GetName())
+		if err != nil {
+			fmt.Printf("<?> Error: %v\n", err)
+			return
+		}
 	} else {
 		fmt.Printf("\nJob: %s\n", job.GetName())
 	}
@@ -432,7 +436,11 @@ func (s *Streamer) applyTail(logs string) string {
 // s.printHeader(run)
 func (s *Streamer) printHeader(run *gh.WorkflowRun) {
 	if s.colorize {
-		color.New(color.Bold).Println("Workflow Run")
+		_, err := color.New(color.Bold).Println("Workflow Run")
+		if err != nil {
+			fmt.Printf("<?> Error: %v\n", err)
+			return
+		}
 	} else {
 		fmt.Println("Workflow Run")
 	}

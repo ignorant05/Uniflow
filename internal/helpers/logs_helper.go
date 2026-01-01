@@ -24,11 +24,7 @@ func IsWarning(content string) bool {
 }
 
 func IsDebug(content string) bool {
-	if strings.Contains(content, "debug") {
-		return true
-	}
-
-	return false
+	return strings.Contains(content, "debug")
 }
 
 func IsSuccess(content string) bool {

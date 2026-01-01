@@ -6,6 +6,7 @@ import (
 	"testing"
 
 	gh "github.com/google/go-github/v57/github"
+	errorhandling "github.com/ignorant05/Uniflow/internal/errorHandling"
 	mock "github.com/ignorant05/Uniflow/platforms/tests/unit/github"
 
 	"github.com/stretchr/testify/assert"
@@ -18,7 +19,11 @@ func TestTriggerWorkflow_Success(t *testing.T) {
 		assert.Equal(t, "POST", r.Method)
 
 		var body map[string]interface{}
-		json.NewDecoder(r.Body).Decode(&body)
+		err := json.NewDecoder(r.Body).Decode(&body)
+		if err != nil {
+			errorhandling.HandleError(err)
+		}
+
 		assert.Equal(t, "main", body["ref"])
 
 		w.WriteHeader(http.StatusNoContent)
@@ -49,7 +54,11 @@ func TestTriggerWorkflowWithInputs_Success(t *testing.T) {
 		assert.Equal(t, "POST", r.Method)
 
 		var body map[string]interface{}
-		json.NewDecoder(r.Body).Decode(&body)
+		err := json.NewDecoder(r.Body).Decode(&body)
+		if err != nil {
+			errorhandling.HandleError(err)
+		}
+
 		assert.Equal(t, "main", body["ref"])
 
 		inputs := body["inputs"].(map[string]interface{})
@@ -87,7 +96,11 @@ func TestTriggerWorkflowWithInputs_Success(t *testing.T) {
 func TestTriggerWorkflow_NonExistentFile(t *testing.T) {
 	server, client := mock.SetupTestClientWithMockServer(t, func(w http.ResponseWriter, r *http.Request) {
 		var body map[string]interface{}
-		json.NewDecoder(r.Body).Decode(&body)
+		err := json.NewDecoder(r.Body).Decode(&body)
+		if err != nil {
+			errorhandling.HandleError(err)
+		}
+
 		assert.Equal(t, "main", body["ref"])
 
 		w.WriteHeader(http.StatusNoContent)
@@ -118,7 +131,11 @@ func TestTriggerWorkflow_Failure(t *testing.T) {
 		assert.Equal(t, "POST", r.Method)
 
 		var body map[string]interface{}
-		json.NewDecoder(r.Body).Decode(&body)
+		err := json.NewDecoder(r.Body).Decode(&body)
+		if err != nil {
+			errorhandling.HandleError(err)
+		}
+
 		assert.Equal(t, "main", body["ref"])
 
 		w.WriteHeader(http.StatusNoContent)

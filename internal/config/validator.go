@@ -153,6 +153,6 @@ func ValidateAndReport(cfg *Config) error {
 
 	fmt.Println("\nPlease fix these issues in your config file or use 'uniflow config set' to update values.")
 
-	return fmt.Errorf("configuration validation failed with %d error(s)\n\n", len(errors))
+	return fmt.Errorf("configuration validation failed with %d error(s)", len(errors))
 
 }
