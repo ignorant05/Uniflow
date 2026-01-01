@@ -5,7 +5,7 @@ import (
 	"strings"
 
 	"github.com/google/go-github/v57/github"
-	constants "github.com/ignorant05/Uniflow/internal/constants/config"
+	"github.com/ignorant05/Uniflow/platforms/github/constants"
 	ghconstants "github.com/ignorant05/Uniflow/platforms/github/constants"
 	"github.com/ignorant05/Uniflow/platforms/github/helpers"
 )
