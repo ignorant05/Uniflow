@@ -10,7 +10,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/ignorant05/Uniflow/platforms/github/constants"
+	"github.com/ignorant05/Uniflow/platforms/configurations/github/constants"
 )
 
 type HttpClient interface {

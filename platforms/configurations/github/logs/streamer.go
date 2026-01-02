@@ -7,11 +7,11 @@ import (
 	"time"
 
 	"github.com/fatih/color"
+	"github.com/google/go-github/v57/github"
 	gh "github.com/google/go-github/v57/github"
 
 	"github.com/ignorant05/Uniflow/internal/helpers"
-	"github.com/ignorant05/Uniflow/platforms/github"
-	"github.com/ignorant05/Uniflow/platforms/github/constants"
+	"github.com/ignorant05/Uniflow/platforms/configurations/github/constants"
 )
 
 // Log Level type
@@ -30,7 +30,6 @@ const (
 type StreamerOptions struct {
 	Follow    bool
 	TailLines int
-	ShowTime  bool
 	Colorize  bool
 }
 
@@ -45,7 +44,6 @@ type Streamer struct {
 
 	follow    bool
 	tailLines int
-	showTime  bool
 	colorize  bool
 
 	// lastLogLine int
@@ -72,7 +70,6 @@ func NewStreamer(client *github.Client, owner, repo string, runID int64, opts St
 		runID:      runID,
 		follow:     opts.Follow,
 		tailLines:  opts.TailLines,
-		showTime:   opts.ShowTime,
 		colorize:   opts.Colorize,
 		seenJobs:   make(map[int64]bool),
 	}
@@ -299,7 +296,7 @@ func (s *Streamer) printLogLine(line string) {
 
 	level := s.detectLogLevel(content)
 
-	if s.showTime && timestamp != "" {
+	if timestamp != "" {
 		timeStr := s.formatTimestamp(timestamp)
 		if s.colorize {
 			output = color.New(color.FgHiBlack).Sprint(timeStr) + " "

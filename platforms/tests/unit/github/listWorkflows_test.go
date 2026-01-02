@@ -10,7 +10,7 @@ import (
 	gh "github.com/google/go-github/v57/github"
 	"github.com/ignorant05/Uniflow/internal/config"
 	errorhandling "github.com/ignorant05/Uniflow/internal/errorHandling"
-	"github.com/ignorant05/Uniflow/platforms/github"
+	"github.com/ignorant05/Uniflow/platforms/configurations/github"
 	mock "github.com/ignorant05/Uniflow/platforms/tests/unit/github"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"

@@ -3,8 +3,8 @@ package helpers
 import (
 	"fmt"
 
+	"github.com/google/go-github/v57/github"
 	"github.com/ignorant05/Uniflow/platforms"
-	"github.com/ignorant05/Uniflow/platforms/github"
 )
 
 // ExtractGithubClient extracts github client from PlatformClient struct

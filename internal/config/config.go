@@ -16,7 +16,8 @@ type Config struct {
 
 // The configuration profile (dev, prod, staging, etc...)
 type Profile struct {
-	Github *GithubConfig `yaml:"github,omitempty" mapstructure:"github"`
+	Github  *GithubConfig   `yaml:"github,omitempty" mapstructure:"github"`
+	Jenkins *JenkinsConfig `yaml:"jenkins,omitempty" mapstructure:"jenkins"`
 }
 
 // NewDefaultConfig creates configuration with default values
