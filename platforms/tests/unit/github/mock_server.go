@@ -8,7 +8,7 @@ import (
 	"testing"
 
 	"github.com/ignorant05/Uniflow/internal/config"
-	"github.com/ignorant05/Uniflow/platforms/github"
+	"github.com/ignorant05/Uniflow/platforms/configurations/github"
 	"github.com/stretchr/testify/require"
 )
 

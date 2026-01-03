@@ -7,9 +7,10 @@ import (
 	"strings"
 
 	githubClient "github.com/google/go-github/v57/github"
+	"github.com/ignorant05/Uniflow/platforms/configurations/github"
+
+	ghlogs "github.com/ignorant05/Uniflow/platforms/configurations/github/logs"
 	"github.com/ignorant05/Uniflow/platforms/constants"
-	"github.com/ignorant05/Uniflow/platforms/github"
-	ghlogs "github.com/ignorant05/Uniflow/platforms/github/logs"
 	"github.com/ignorant05/Uniflow/types"
 )
 

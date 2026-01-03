@@ -8,3 +8,9 @@ const (
 	// GITHUB_LOGS_MAX_INDIRECT represents maxIndirects (default is 5)
 	GITHUB_LOGS_MAX_INDIRECT = 5
 )
+
+// Default rate limiting configuration.
+const (
+	// Default rate limiting
+	DEFAULT_PER_PAGE = 100
+)

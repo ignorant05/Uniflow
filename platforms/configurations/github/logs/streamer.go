@@ -7,11 +7,10 @@ import (
 	"time"
 
 	"github.com/fatih/color"
-	gh "github.com/google/go-github/v57/github"
+	"github.com/google/go-github/v57/github"
 
 	"github.com/ignorant05/Uniflow/internal/helpers"
-	"github.com/ignorant05/Uniflow/platforms/github"
-	"github.com/ignorant05/Uniflow/platforms/github/constants"
+	"github.com/ignorant05/Uniflow/platforms/configurations/github/constants"
 )
 
 // Log Level type
@@ -30,7 +29,6 @@ const (
 type StreamerOptions struct {
 	Follow    bool
 	TailLines int
-	ShowTime  bool
 	Colorize  bool
 }
 
@@ -45,7 +43,6 @@ type Streamer struct {
 
 	follow    bool
 	tailLines int
-	showTime  bool
 	colorize  bool
 
 	// lastLogLine int
@@ -72,7 +69,6 @@ func NewStreamer(client *github.Client, owner, repo string, runID int64, opts St
 		runID:      runID,
 		follow:     opts.Follow,
 		tailLines:  opts.TailLines,
-		showTime:   opts.ShowTime,
 		colorize:   opts.Colorize,
 		seenJobs:   make(map[int64]bool),
 	}
@@ -104,7 +100,7 @@ func (s *Streamer) Stream() error {
 //
 // Examples:
 // err := s.streamOnce(run)
-func (s *Streamer) streamOnce(run *gh.WorkflowRun) error {
+func (s *Streamer) streamOnce(run *github.WorkflowRun) error {
 	if run.GetStatus() == "completed" {
 		fmt.Println("  Waiting for workflow to complete.")
 
@@ -137,7 +133,7 @@ func (s *Streamer) streamOnce(run *gh.WorkflowRun) error {
 //
 // Examples:
 // err := s.streamWithFollow(run)
-func (s *Streamer) streamWithFollow(run *gh.WorkflowRun) error {
+func (s *Streamer) streamWithFollow(run *github.WorkflowRun) error {
 	fmt.Println("  Following logs (press Ctrl+C to stop)...")
 
 	ticker := time.NewTicker(constants.PollInterval)
@@ -192,7 +188,7 @@ func (s *Streamer) streamWithFollow(run *gh.WorkflowRun) error {
 //
 // Examples:
 // err := s.streamJobLogs(run)
-func (s *Streamer) streamJobLogs(job *gh.WorkflowJob, seenLines map[string]bool) error {
+func (s *Streamer) streamJobLogs(job *github.WorkflowJob, seenLines map[string]bool) error {
 	if job.GetStatus() == "queued" ||
 		job.GetStatus() == "waiting" {
 		return nil
@@ -299,7 +295,7 @@ func (s *Streamer) printLogLine(line string) {
 
 	level := s.detectLogLevel(content)
 
-	if s.showTime && timestamp != "" {
+	if timestamp != "" {
 		timeStr := s.formatTimestamp(timestamp)
 		if s.colorize {
 			output = color.New(color.FgHiBlack).Sprint(timeStr) + " "
@@ -392,7 +388,7 @@ func (s *Streamer) formatTimestamp(timestamp string) string {
 //
 // Examples:
 // s.printJobHeader(job)
-func (s *Streamer) printJobHeader(job *gh.WorkflowJob) {
+func (s *Streamer) printJobHeader(job *github.WorkflowJob) {
 	if s.colorize {
 		_, err := color.New(color.Bold, color.FgCyan).Printf("\nJob: %s\n", job.GetName())
 		if err != nil {
@@ -434,7 +430,7 @@ func (s *Streamer) applyTail(logs string) string {
 //
 // Examples:
 // s.printHeader(run)
-func (s *Streamer) printHeader(run *gh.WorkflowRun) {
+func (s *Streamer) printHeader(run *github.WorkflowRun) {
 	if s.colorize {
 		_, err := color.New(color.Bold).Println("Workflow Run")
 		if err != nil {
@@ -507,7 +503,7 @@ func (s *Streamer) formatConclusion(conc string) string {
 //
 // Examples:
 // s.formatCompletion(run)
-func (s *Streamer) formatCompletion(run *gh.WorkflowRun) {
+func (s *Streamer) formatCompletion(run *github.WorkflowRun) {
 	fmt.Println()
 	fmt.Println(strings.Repeat("-", 80))
 	conclusion := run.GetConclusion()

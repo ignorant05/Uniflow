@@ -8,7 +8,7 @@ import (
 
 	"github.com/fatih/color"
 	"github.com/ignorant05/Uniflow/internal/config"
-	"github.com/ignorant05/Uniflow/platforms/github"
+	"github.com/ignorant05/Uniflow/platforms/configurations/github"
 )
 
 // Test streamer creation
@@ -52,7 +52,7 @@ func TestNewStreamer(t *testing.T) {
 
 			client, _ := github.NewClient(context.Background(), cfg)
 
-			streamer := NewStreamer(client, tt.owner, tt.repo, tt.runID, tt.opts)
+			streamer := NewStreamer(client.Client, tt.owner, tt.repo, tt.runID, tt.opts)
 
 			if streamer == nil {
 				t.Error("New Streamer returned nil")
@@ -73,9 +73,6 @@ func TestNewStreamer(t *testing.T) {
 			}
 			if streamer.tailLines != tt.opts.TailLines {
 				t.Errorf("tailLines = %v, want %v", streamer.tailLines, tt.opts.TailLines)
-			}
-			if streamer.showTime != tt.opts.ShowTime {
-				t.Errorf("showTime = %v, want %v", streamer.showTime, tt.opts.ShowTime)
 			}
 			if streamer.colorize != tt.opts.Colorize {
 				t.Errorf("colorize = %v, want %v", streamer.colorize, tt.opts.Colorize)
@@ -103,7 +100,7 @@ func TestStreamerStop(t *testing.T) {
 
 	client, _ := github.NewClient(context.Background(), cfg)
 
-	streamer := NewStreamer(client, "ignorant05", "Uniflow", 12345, StreamerOptions{})
+	streamer := NewStreamer(client.Client, "ignorant05", "Uniflow", 12345, StreamerOptions{})
 	select {
 	case <-streamer.ctx.Done():
 		t.Error("Context should not be done initially")

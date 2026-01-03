@@ -12,7 +12,7 @@ import (
 	"github.com/ignorant05/Uniflow/internal/config"
 	errorhandling "github.com/ignorant05/Uniflow/internal/errorHandling"
 	"github.com/ignorant05/Uniflow/platforms"
-	ghlogs "github.com/ignorant05/Uniflow/platforms/github/logs"
+	ghlogs "github.com/ignorant05/Uniflow/platforms/configurations/github/logs"
 	"github.com/ignorant05/Uniflow/types"
 	"github.com/spf13/cobra"
 )

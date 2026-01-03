@@ -5,9 +5,8 @@ import (
 	"strings"
 
 	"github.com/google/go-github/v57/github"
-	constants "github.com/ignorant05/Uniflow/internal/constants/config"
-	ghconstants "github.com/ignorant05/Uniflow/platforms/github/constants"
-	"github.com/ignorant05/Uniflow/platforms/github/helpers"
+	"github.com/ignorant05/Uniflow/platforms/configurations/github/constants"
+	"github.com/ignorant05/Uniflow/platforms/configurations/github/helpers"
 )
 
 // TriggerWorkflow triggers a GitHub Actions workflow using the workflow_dispatch event.
@@ -77,7 +76,7 @@ func (c *Client) TriggerDefaultWorkflow(workflowFileName, ref string, inputs map
 }
 
 func (c *Client) ListWorkflows(owner, repo string) ([]*github.Workflow, error) {
-	opts := &github.ListOptions{PerPage: ghconstants.DEFAULT_PER_PAGE}
+	opts := &github.ListOptions{PerPage: constants.DEFAULT_PER_PAGE}
 
 	workflows, _, err := c.Actions.ListWorkflows(c.Ctx, owner, repo, opts)
 	if err != nil {
@@ -103,7 +102,7 @@ func (c *Client) ListWorkflows(owner, repo string) ([]*github.Workflow, error) {
 //	jobs, err := client.ListWorkflowJobs("owner", "repo", 12345)
 func (c *Client) ListWorkflowJobs(owner, repo string, runID int64) ([]*github.WorkflowJob, error) {
 	opts := &github.ListWorkflowJobsOptions{
-		ListOptions: github.ListOptions{PerPage: ghconstants.DEFAULT_PER_PAGE},
+		ListOptions: github.ListOptions{PerPage: constants.DEFAULT_PER_PAGE},
 	}
 
 	jobs, _, err := c.Actions.ListWorkflowJobs(c.Ctx, owner, repo, runID, opts)
@@ -130,7 +129,7 @@ func (c *Client) ListWorkflowJobs(owner, repo string, runID int64) ([]*github.Wo
 //	runs, err := client.GetWorkflowRuns("owner", "repo", 12345)
 func (c *Client) GetWorkflowRuns(owner, repo string, workflowID int64) ([]*github.WorkflowRun, error) {
 	opts := &github.ListWorkflowRunsOptions{
-		ListOptions: github.ListOptions{PerPage: ghconstants.DEFAULT_PER_PAGE},
+		ListOptions: github.ListOptions{PerPage: constants.DEFAULT_PER_PAGE},
 	}
 	runs, _, err := c.Actions.ListWorkflowRunsByID(c.Ctx, owner, repo, workflowID, opts)
 	if err != nil {
