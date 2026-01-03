@@ -10,8 +10,8 @@ import (
 
 	"github.com/ignorant05/Uniflow/internal/config"
 	platforms "github.com/ignorant05/Uniflow/platforms/adapters"
+	"github.com/ignorant05/Uniflow/platforms/configurations/github"
 	"github.com/ignorant05/Uniflow/platforms/constants"
-	"github.com/ignorant05/Uniflow/platforms/github"
 	"github.com/ignorant05/Uniflow/types"
 )
 
