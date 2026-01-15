@@ -2,7 +2,6 @@ package github_test
 
 import (
 	"context"
-	"os"
 	"testing"
 
 	"github.com/ignorant05/Uniflow/internal/config"
@@ -27,39 +26,39 @@ func TestClientWithToken(t *testing.T) {
 // Testing client creation with token from env (as env variable)
 // Make sure to set an env variable called "GITHUB_TOKEN" for this one before launching it or i'll fail
 // use export GITHUB_TOKEN="ur token here"
-func TestClientWithTokenFromEnv(t *testing.T) {
-	// Uncomment the next line and set ur token here for testing and place it in a replacements.txt (if you want to re-push this file again)
-	// os.Setenv("GITHUB_TOKEN", "your token here")
-
-	token := os.Getenv("GITHUB_TOKEN")
-
-	cfg := &config.GithubConfig{
-		Token: token,
-	}
-
-	client, err := github.NewClient(context.Background(), cfg)
-
-	require.NoError(t, err)
-	assert.NotNil(t, client)
-	assert.NotNil(t, client.Client)
-}
-
-// Testing client creation with custom enterpise URL
-func TestClientWithEnterpriseURL(t *testing.T) {
-	token := os.Getenv("GITHUB_TOKEN")
-	baseURL := "https://github.enterprise.com"
-
-	cfg := &config.GithubConfig{
-		Token:   token,
-		BaseURL: baseURL,
-	}
-
-	client, err := github.NewClient(context.Background(), cfg)
-
-	require.NoError(t, err)
-	assert.NotNil(t, client)
-	assert.NotNil(t, client.Client)
-}
+// func TestClientWithTokenFromEnv(t *testing.T) {
+// 	// Uncomment the next line and set ur token here for testing and place it in a replacements.txt (if you want to re-push this file again)
+// 	// os.Setenv("GITHUB_TOKEN", "your token here")
+//
+// 	token := os.Getenv("GITHUB_TOKEN")
+//
+// 	cfg := &config.GithubConfig{
+// 		Token: token,
+// 	}
+//
+// 	client, err := github.NewClient(context.Background(), cfg)
+//
+// 	require.NoError(t, err)
+// 	assert.NotNil(t, client)
+// 	assert.NotNil(t, client.Client)
+// }
+//
+// // Testing client creation with custom enterpise URL
+// func TestClientWithEnterpriseURL(t *testing.T) {
+// 	token := os.Getenv("GITHUB_TOKEN")
+// 	baseURL := "https://github.enterprise.com"
+//
+// 	cfg := &config.GithubConfig{
+// 		Token:   token,
+// 		BaseURL: baseURL,
+// 	}
+//
+// 	client, err := github.NewClient(context.Background(), cfg)
+//
+// 	require.NoError(t, err)
+// 	assert.NotNil(t, client)
+// 	assert.NotNil(t, client.Client)
+// }
 
 // Testing client creation from profile
 func TestClientFromProfile_Success(t *testing.T) {

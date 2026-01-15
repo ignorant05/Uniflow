@@ -89,10 +89,15 @@ uniflow init
 
 This creates `~/.uniflow/config.yaml` with default settings.
 
-### 2. Set Your API Tokens
+### 2. Set your enviroment variables 
 
 ```bash
-export GITHUB_TOKEN="ghp_your_token_here" (only github for now is supported)
+export GITHUB_TOKEN="ghp_your_token_here" (for github)
+
+## For jenkins
+export JENKINS_URL="http://your-jenkins-instance:8080"
+export JENKINS_USERNAME="your-username"
+export JENKINS_TOKEN="your-api-token-here"
 ```
 
 Or add to your shell profile (`~/.bashrc`, `~/.zshrc`):
@@ -192,7 +197,6 @@ profiles:
       default_repo: owner/repo
       base_url: https://api.github.com
     
-    # jenkins isn't supported yet 
     jenkins:
       url: https://jenkins.company.com
       username: admin
@@ -310,7 +314,7 @@ See Installation Guide for more troubleshooting.
 **Supported Platforms:**
 
 - ✅ GitHub Actions (Full support)
-- 🚧 Jenkins (Coming soon)
+- ✅ Jenkins (Full support)
 - 🚧 GitLab CI (Coming soon)
 - 🚧 CircleCI (Coming soon)
 
@@ -325,6 +329,7 @@ This project is licensed under the [MIT License](https://github.com/ignorant05/U
 - Built with [Cobra](https://github.com/spf13/cobra) for CLI
 - Configuration powered by [Viper](https://github.com/spf13/viper)
 - GitHub API via [go-github](https://github.com/google/go-github)
+- Jenkins API via [gojenkins](https://github.com/bndr/gojenkins)
 - Colored output using [fatih/color](https://github.com/fatih/color)
 
 ---

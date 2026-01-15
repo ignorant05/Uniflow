@@ -268,37 +268,57 @@ Uniflow/
 ├── main.go           
 ├── makefile          # makefile for dev experience
 ├── platforms
-│   ├── adapters
-│   │   └── github_adapter.go
-│   ├── constants
-│   │   ├── github_adapter_constants.go
-│   │   └── platforms_constants.go
-│   ├── factory.go
-│   ├── github
-│   │   ├── constants
-│   │   │   ├── downloader_constants.go
-│   │   │   ├── github.go
-│   │   │   └── streamer_constants.go
-│   │   ├── github_client.go
-│   │   ├── github_factory.go
-│   │   ├── github_workflows.go
-│   │   ├── helpers
-│   │   │   └── github_client_helper.go
-│   │   └── logs
-│   │       ├── downloader.go
-│   │       ├── streamer.go
-│   │       └── streamer_test.go
-│   ├── interface.go
+│   ├── adapters
+│   │   ├── github_adapter.go
+│   │   └── jenkins_adapter.go
+│   ├── configurations
+│   │   ├── github
+│   │   │   ├── constants
+│   │   │   │   ├── downloader_constants.go
+│   │   │   │   ├── github_constants.go
+│   │   │   │   └── streamer_constants.go
+│   │   │   ├── github_client.go
+│   │   │   ├── github_factory.go
+│   │   │   ├── github_workflows.go
+│   │   │   ├── helpers
+│   │   │   │   └── github_client_helper.go
+│   │   │   └── logs
+│   │   │       ├── downloader.go
+│   │   │       ├── streamer.go
+│   │   │       └── streamer_test.go
+│   │   └── jenkins
+│   │       ├── constants
+│   │       │   ├── jenkins.go
+│   │       │   └── streamer_constants.go
+│   │       ├── helpers
+│   │       │   └── jenkins_client_helper.go
+│   │       ├── jenkins_client.go
+│   │       ├── jenkins_factory.go
+│   │       ├── jenkins_workflows.go
+│   │       └── logs
+│   │           ├── downloader.go
+│   │           ├── jenkins_streamer.go
+│   │           └── jenkins_streamer_test.go
+│   ├── constants
+│   │   ├── github_adapter_constants.go
+│   │   └── platforms_constants.go
+│   ├── factory.go
+│   ├── interface.go
 │   └── tests       # platforms's unit tests 
 │       └── unit
 │           └── github
-│               ├── clientCreation_test.go
-│               ├── getDefaultRepo_test.go
-│               ├── getWorkflowRun_test.go
-│               ├── listWorkflows_test.go
-│               ├── mock_server.go
-│               ├── triggerWorkflow_test.go
-│               └── workflowRunJobs_test.go
+│           │   ├── clientCreation_test.go
+│           │   ├── getDefaultRepo_test.go
+│           │   ├── getWorkflowRun_test.go
+│           │   ├── listWorkflows_test.go
+│           │   ├── mock_server.go
+│           │   ├── triggerWorkflow_test.go
+│           │   └── workflowRunJobs_test.go
+│           └── jenkins
+│               ├── clientCreation_test.
+│               ├── getJobBuild_test.go
+│               └── mock_server.go
+│
 ├── .github           # Workflows directory
 │   └── workflows
 │       └── ci.yaml   # Continuous integration workflow file
