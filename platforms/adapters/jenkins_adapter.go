@@ -136,7 +136,8 @@ func (a *JenkinsAdapter) ListWorkflows(ctx context.Context, req *types.ListWorkf
 					return "disabled"
 				}
 				if err == nil {
-					errorhandling.HandleError(fmt.Errorf("Something went wrong: %w", err))
+					errMsg := fmt.Errorf("something went wrong: %w", err)
+					errorhandling.HandleError(errMsg)
 				}
 				return "active"
 			}(),
