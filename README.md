@@ -1,21 +1,21 @@
-# 🚀 Uniflow
+# Uniflow
 
-A CLI tool for managing and triggering workflows across multiple CI/CD platforms (GitHub Actions, Jenkins, GitLab CI, CircleCI).
+A CLI tool for managing and triggering workflows across multiple CI/CD platforms (GitHub Actions, Jenkins, GitLab CI).
 
 ![Go Version](https://img.shields.io/badge/Go-1.24.4+-00ADD8?style=flat&logo=go) ![License](https://img.shields.io/badge/license-MIT-blue.svg) ![Status](https://img.shields.io/badge/status-active-success.svg)
 
 ---
-## ✨ Features
+## Features
 
-- 🔧 **Multi-Platform Support**: GitHub Actions, Jenkins, GitLab CI, CircleCI
-- 🔐 **Secure Configuration**: Environment variables and OS keyring integration
-- 📦 **Profile Management**: Separate configs for dev, staging, production
-- 🔄 **Real-Time Log Streaming**: Follow workflow execution with colored output
-- ✅ **Config Validation**: Catch errors before running workflows
-- 🎯 **Simple CLI**: Easy-to-use commands with helpful error messages
+- **Multi-Platform Support**: GitHub Actions, Jenkins, GitLab CI 
+- **Secure Configuration**: Environment variables and OS keyring integration
+- **Profile Management**: Separate configs for dev, staging, production
+- **Real-Time Log Streaming**: Follow workflow execution with colored output
+- **Config Validation**: Catch errors before running workflows
+- **Simple CLI**: Easy-to-use commands with helpful error messages
 
 ---
-## 🎬 Quick Demo
+## Quick Demo
 
 ```bash
 # Initialize configuration
@@ -35,9 +35,9 @@ uniflow status deploy.yml
 ```
 
 ---
-## 📦 Installation
+## Installation
 
-### Quick Install (Recommended)
+### Quick Install 
 
 ```bash
 # Clone the repository
@@ -52,31 +52,21 @@ sudo mv uniflow /usr/local/bin/
 uniflow --version
 ```
 
-### From Source
+### Using the installation script (Recommended) 
 
 ```bash
-git clone https://github.com/ignorant05/uniflow.git
-cd uniflow
-make install
-```
-
-### Using installation script (NOT RECOMMENDED)
-```bash 
-# Clone the repository
-git clone https://github.com/ignorant05/uniflow.git
-cd uniflow
-
-# Run installation script
-./install.sh
+curl -fsSL https://raw.githubusercontent.com/ignorant05/uniflow/main/install.sh | sh
 ```
 
 > #NOTE: Please **verify** the [install.sh script](https://github.com/ignorant05/Uniflow/blob/main/install.sh) before proceeding with this installation                          method.
 
 ### Prerequisites
 
-- Go 1.24.4 or higher
+- Go 1.24.4 or higher (or docker if you prefer)
 - Git
 - GitHub personal access token (for GitHub Actions)
+- GitLab personal access token 
+- Jenkins API token
 
 ---
 ## 🚀 Quick Start
@@ -89,15 +79,19 @@ uniflow init
 
 This creates `~/.uniflow/config.yaml` with default settings.
 
-### 2. Set your enviroment variables 
+### 2. Set your environment variables 
 
 ```bash
-export GITHUB_TOKEN="ghp_your_token_here" (for github)
+## For github
+export GITHUB_TOKEN="ghp_your_token_here" 
 
 ## For jenkins
 export JENKINS_URL="http://your-jenkins-instance:8080"
 export JENKINS_USERNAME="your-username"
 export JENKINS_TOKEN="your-api-token-here"
+
+## For gitlab
+export GITLAB_TOKEN="your-api-token-here"
 ```
 
 Or add to your shell profile (`~/.bashrc`, `~/.zshrc`):
@@ -130,7 +124,7 @@ uniflow trigger deploy.yml --input environment=dev
 ```
 
 ---
-## 📖 Documentation
+## Documentation
 
 - **Installation Guide** - Detailed setup instructions
 - **Configuration Guide** - Complete config reference
@@ -139,7 +133,7 @@ uniflow trigger deploy.yml --input environment=dev
 - **Contributing Guide** - How to contribute
 
 ---
-## 🎯 Common Use Cases
+## Common Use Cases
 
 ### Monitor Deployments
 
@@ -182,7 +176,7 @@ uniflow trigger deploy.yml --profile prod --input env=production
 ```
 
 ---
-## 🔧 Configuration
+## Configuration
 
 Basic configuration file (`~/.uniflow/config.yaml`):
 
@@ -206,7 +200,7 @@ profiles:
 See Configuration Guide for complete reference.
 
 ---
-## 📝 Available Commands
+## Available Commands
 
 | Command     | Description              | Example                            |
 | ----------- | ------------------------ | ---------------------------------- |
@@ -220,7 +214,7 @@ See Configuration Guide for complete reference.
 See [Commands Reference](https://github.com/ignorant05/Uniflow/blob/main/doc/commands.md) for detailed commands documentation.
 
 ---
-## 🎨 Features Showcase
+## Features Showcase
 
 ### Real-Time Log Streaming
 
@@ -228,10 +222,10 @@ See [Commands Reference](https://github.com/ignorant05/Uniflow/blob/main/doc/com
 uniflow logs deploy.yml --follow 
 ```
 
-- ✅ Color-coded output (errors in red, success in green)
-- ⏰ Timestamps for each line
-- 🔄 Live updates every 3 seconds
-- ⚡ Graceful Ctrl+C handling
+- Color-coded output (errors in red, success in green)
+- Timestamps for each line
+- Live updates every 3 seconds
+- Graceful Ctrl+C handling
 
 ### Multi-Profile Support
 
@@ -251,13 +245,13 @@ uniflow status deploy.yml
 
 Shows:
 
-- ✅ Run number and status
-- 🔄 Success/failure conclusion
-- ⏰ Triggered time
-- 🔗 Direct link to run
+- Run number and status
+- Success/failure conclusion
+- Triggered time
+- Direct link to run
 
 ---
-## 🤝 Contributing
+## Contributing
 
 We welcome contributions! Please see our [Contributing Guide](https://github.com/ignorant05/Uniflow/blob/main/doc/github-actions.md) for details.
 
@@ -279,7 +273,7 @@ make build
 ```
 
 ---
-## 🐛 Troubleshooting
+## Troubleshooting
 
 ### Common Issues
 
@@ -307,7 +301,7 @@ uniflow workflows
 See Installation Guide for more troubleshooting.
 
 ---
-## 📊 Project Status
+## Project Status
 
 **Current Version:** 1.0.0
 
@@ -315,25 +309,25 @@ See Installation Guide for more troubleshooting.
 
 - ✅ GitHub Actions (Full support)
 - ✅ Jenkins (Full support)
-- 🚧 GitLab CI (Coming soon)
-- 🚧 CircleCI (Coming soon)
+- ✅ GitLab CI (Full support)
 
 ---
-## 📄 License
+## License
 
 This project is licensed under the [MIT License](https://github.com/ignorant05/Uniflow/blob/main/LICENSE).
 
 ---
-## 🙏 Acknowledgments
+## Acknowledgments
 
 - Built with [Cobra](https://github.com/spf13/cobra) for CLI
 - Configuration powered by [Viper](https://github.com/spf13/viper)
 - GitHub API via [go-github](https://github.com/google/go-github)
 - Jenkins API via [gojenkins](https://github.com/bndr/gojenkins)
+- Gitlab API via [client-go](https://gitlab.com/gitlab-org/api/client-go)
 - Colored output using [fatih/color](https://github.com/fatih/color)
 
 ---
-## 📧 Contact & Support
+## Contact & Support
 
 - **GitHub Issues**: [Report bugs](https://github.com/ignorant05/uniflow/issues)
 - **Discussions**: [Ask questions](https://github.com/ignorant05/uniflow/discussions)
@@ -346,7 +340,7 @@ This project is licensed under the [MIT License](https://github.com/ignorant05/U
 If you find this project useful, please consider giving it a star!
 
 ---
-## 💻 Contribution
+## Contribution
 
 As for contributions, see the [contribution guidelines](https://github.com/ignorant05/Uniflow/blob/main/doc/github-actions.md) 
 

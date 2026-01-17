@@ -1,4 +1,4 @@
-package github
+package gitlab
 
 import (
 	"archive/zip"
@@ -20,45 +20,6 @@ type HttpClient interface {
 // Default client with default field timeout
 var DefaultClient = &http.Client{
 	Timeout: 30 * time.Second,
-}
-
-// readLogs reads and downloads logs
-//
-// Parameters :
-//   - logsUrl: logs url
-//
-// Errors possible causes:
-//   - invalid url
-//   - internal error
-//
-// Example:
-// body, err := s.readLogs(logsUrl)
-func (s *Streamer) readLogs(logsUrl string) (string, error) {
-	if logsUrl == "" {
-		return "", fmt.Errorf("<?> Error: Invalid URL")
-	}
-
-	resp, err := http.Get(logsUrl)
-	if err != nil {
-		return "", fmt.Errorf("<?> Error: Failed to download logs from urls: %s\n<?> Error: %w", logsUrl, err)
-	}
-
-	defer func() {
-		if err := resp.Body.Close(); err != nil {
-			fmt.Printf("<!> warning: Failed to close response body: %v", err)
-		}
-	}()
-
-	if resp.StatusCode != http.StatusOK {
-		return "", fmt.Errorf("<?> Error: Failed to download logs data.\n<?> Error: Status Code: %d", resp.StatusCode)
-	}
-
-	body, err := io.ReadAll(resp.Body)
-	if err != nil {
-		return "", fmt.Errorf("<?> Error: Failed to read logs.\n<?> Error: %w\b", err)
-	}
-
-	return string(body), nil
 }
 
 // DownloadLogs reads and downloads logs

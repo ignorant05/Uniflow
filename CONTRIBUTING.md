@@ -45,11 +45,11 @@ We pledge to make participation in our project a harassment-free experience for 
 
 ### Ways to Contribute
 
-- 🐛 **Report bugs** - Found a bug? Let us know!
-- ✨ **Suggest features** - Have an idea? Share it!
-- 📝 **Improve documentation** - Help others understand
-- 💻 **Write code** - Fix bugs or add features
-- 🧪 **Write tests** - Improve code coverage
+- **Report bugs** - Found a bug? Let us know!
+- **Suggest features** - Have an idea? Share it!
+- **Improve documentation** - Help others understand
+- **Write code** - Fix bugs or add features
+- **Write tests** - Improve code coverage
 
 ### First Time Contributors
 
@@ -458,9 +458,9 @@ Any other context, mockups, or examples.
 
 ### Stay Updated
 
-- ⭐ Star the repository
-- 👀 Watch for releases
-- 📢 Follow announcements
+- Star the repository
+- Watch for releases
+- Follow announcements
 
 ---
 ## Learning Resources
@@ -487,7 +487,7 @@ Any other context, mockups, or examples.
 By contributing, you agree that your contributions will be licensed under the MIT License.
 
 ---
-## 🙏 Thank You!
+## Thank You!
 
 Every contribution, no matter how small, is appreciated. Thank you for helping make Uniflow better!
 
