@@ -71,6 +71,18 @@ func resolveEnvVars(cfg *Config) error {
 			profile.Github.BaseURL = resolveEnvVar(profile.Github.BaseURL)
 		}
 
+		if profile.Jenkins != nil {
+			profile.Jenkins.APIToken = resolveEnvVar(profile.Jenkins.APIToken)
+			profile.Jenkins.BaseURL = resolveEnvVar(profile.Jenkins.BaseURL)
+			profile.Jenkins.Username = resolveEnvVar(profile.Jenkins.Username)
+		}
+
+		if profile.Github != nil {
+			profile.Gitlab.Token = resolveEnvVar(profile.Gitlab.Token)
+			profile.Gitlab.DefaultRepository = resolveEnvVar(profile.Gitlab.DefaultRepository)
+			profile.Gitlab.BaseURL = resolveEnvVar(profile.Gitlab.BaseURL)
+		}
+
 		cfg.Profiles[profileName] = profile
 	}
 
@@ -208,6 +220,36 @@ func updatePlatformField(profile *Profile, platform, field, val string) error {
 			profile.Github.DefaultRepository = val
 		case constants.BASE_URL_FIELD:
 			profile.Github.BaseURL = val
+		default:
+			return fmt.Errorf("<?> Error: Unknown github field: %s", field)
+		}
+	case constants.JENKINS:
+		if profile.Jenkins == nil {
+			profile.Jenkins = &JenkinsConfig{}
+		}
+
+		switch field {
+		case constants.JENKINS_TOKEN_FIELD:
+			profile.Jenkins.APIToken = val
+		case constants.JENKINS_USERNAME_FIELD:
+			profile.Jenkins.Username = val
+		case constants.JENKINS_BASE_URL_FIELD:
+			profile.Jenkins.BaseURL = val
+		default:
+			return fmt.Errorf("<?> Error: Unknown github field: %s", field)
+		}
+	case constants.GITLAB:
+		if profile.Gitlab == nil {
+			profile.Gitlab = &GitlabConfig{}
+		}
+
+		switch field {
+		case constants.TOKEN_FIELD:
+			profile.Gitlab.Token = val
+		case constants.DEFAULT_REPOSITORY_FIELD:
+			profile.Gitlab.DefaultRepository = val
+		case constants.BASE_URL_FIELD:
+			profile.Gitlab.BaseURL = val
 		default:
 			return fmt.Errorf("<?> Error: Unknown github field: %s", field)
 		}

@@ -25,3 +25,10 @@ type JenkinsConfig struct {
 	TimeoutSeconds     int    `yaml:"timeout_seconds,omitempty" mapstructure:"timeout_seconds"`
 	CACertPath         string `yaml:"ca_cert_path,omitempty" mapstructure:"ca_cert_path"`
 }
+
+// Gitlab base configuration
+type GitlabConfig struct {
+	Token             string `yaml:"token" mapstructure:"token"`
+	DefaultRepository string `yaml:"default_repository,omitempty" mapstructure:"default_repository"`
+	BaseURL           string `yaml:"base_url,omitempty" mapstructure:"base_url"`
+}

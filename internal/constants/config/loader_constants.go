@@ -2,7 +2,9 @@ package constants
 
 // default field names
 const (
-	GITHUB = "github"
+	GITHUB  = "github"
+	GITLAB  = "gitlab"
+	JENKINS = "jenkins"
 )
 
 // Defaults
@@ -15,6 +17,14 @@ const (
 
 	// default url field name
 	BASE_URL_FIELD = "base_url"
+)
+
+const (
+	JENKINS_TOKEN_FIELD = "token"
+
+	JENKINS_USERNAME_FIELD = "user"
+
+	JENKINS_BASE_URL_FIELD = "base_url"
 )
 
 const (
