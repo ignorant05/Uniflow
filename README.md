@@ -303,7 +303,7 @@ See Installation Guide for more troubleshooting.
 ---
 ## Project Status
 
-**Current Version:** 1.0.0
+**Current Version:** 0.2.0
 
 **Supported Platforms:**
 
