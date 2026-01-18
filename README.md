@@ -69,7 +69,7 @@ curl -fsSL https://raw.githubusercontent.com/ignorant05/uniflow/main/install.sh 
 - Jenkins API token
 
 ---
-## 🚀 Quick Start
+## Quick Start
 
 ### 1. Initialize Configuration
 
@@ -303,7 +303,7 @@ See Installation Guide for more troubleshooting.
 ---
 ## Project Status
 
-**Current Version:** 1.0.0
+**Current Version:** 0.2.0
 
 **Supported Platforms:**
 
