@@ -230,6 +230,7 @@ Uniflow/
 │   ├── trigger_test.go
 │   ├── workflows.go
 │   └── workflows_test.go
+├── Dockerfile
 ├── CONTRIBUTING.md        # contribution guidelines
 ├── doc
 │   ├── commands.md        # commands documentation
@@ -322,6 +323,7 @@ Uniflow/
 ├── .github           # Workflows directory
 │   └── workflows
 │       └── ci.yaml   # Continuous integration workflow file
+│       └── ghcr.yaml # Build and push to GHCR 
 ├── .gitignore
 ├── types
 │   └── platforms.go
