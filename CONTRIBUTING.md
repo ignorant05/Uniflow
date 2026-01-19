@@ -1,6 +1,6 @@
 # Contributing to Uniflow
 
-Thank you for your interest in contributing to Uniflow! 🎉
+Thank you for your interest in contributing to Uniflow.
 
 This document provides guidelines and instructions for contributing.
 
@@ -104,7 +104,7 @@ make build
 make test
 
 # Run with coverage
-make cov-test
+make ctest
 ```
 
 ### Development Workflow
@@ -145,65 +145,6 @@ docs/improve-readme
 refactor/simplify-logger
 test/add-status-tests
 ```
-
-### Commit Messages
-
-Follow conventional commits:
-
-```
-type(scope): subject
-
-body (optional)
-
-footer (optional)
-```
-**Notes:** there's no concrete structure for commit messages yet.
-
-**Types:**
-
-- `feature` - New feature
-- `enhacement` - Enhancement for existing feature... etc
-- `fix` - Bug fix
-- `docs` - Documentation only
-- `style` - Code style (formatting, etc.)
-- `refactor` - Code refactoring
-- `test` - Adding tests
-
-**Examples:**
-
-```bash
-feat(jenkins): add Jenkins platform support
-
-Implements basic Jenkins integration including:
-- API client setup
-- Job triggering
-- Status checking
-
-Closes (or Solves/or Fixes) #42
-
----
-
-fix(config): validate repository format
-
-Fixes bug where invalid repo format wasn't caught
-during config validation.
-
-Fixes #38
-
----
-
-docs(readme): add installation instructions
-
-Adds detailed installation steps for Linux, macOS, and Windows.
-```
-
-**Rules:**
-
-- Use `gofmt` to format code
-- Use meaningful variable names
-- Add comments for exported functions
-- Keep functions focused and small
-- Handle errors properly
 
 ### File Organization
 
@@ -321,6 +262,17 @@ Uniflow/
 │               └── mock_server.go
 │
 ├── .github           # Workflows directory
+│   ├── ISSUE_TEMPLATE          # Issue templates
+│   │   ├── bug_report.md
+│   │   ├── config.yaml
+│   │   ├── custom_issue.md
+│   │   └── feature_request.md
+│   ├── PULL_REQUEST_TEMPLATE   # PR templates
+│   │   ├── bug_fix.md
+│   │   ├── config.yaml
+│   │   ├── custom_pull_request.md
+│   │   ├── documentation.md
+│   │   └── feature.md
 │   └── workflows
 │       └── ci.yaml   # Continuous integration workflow file
 │       └── ghcr.yaml # Build and push to GHCR 
@@ -343,35 +295,6 @@ Uniflow/
 - ✅ No linting errors: `make lint`
 - ✅ Documentation updated
 
-### PR Template
-
-When creating a PR, include:
-
-```markdown
-## Description
-Brief description of changes
-
-## Type of Change
-- [ ] Bug fix
-- [ ] New feature
-- [ ] Documentation update
-- [ ] Refactoring
-
-## Testing
-- [ ] Unit tests added/updated
-- [ ] Manual testing completed
-- [ ] All tests pass
-
-## Checklist
-- [ ] Code follows style guidelines
-- [ ] Documentation updated
-- [ ] No breaking changes (or documented)
-- [ ] Commit messages follow conventions
-
-## Related Issues
-Closes #42
-Related to #38
-```
 
 ### PR Review Process
 
@@ -391,62 +314,6 @@ git pull upstream main
 # Delete your feature branch
 git branch -d feature/my-feature
 git push origin --delete feature/my-feature
-```
-### README Updates
-
-If you change functionality, update:
-
-- `README.md` - Quick start section
-- `docs/commands.md` - Command reference
-- `docs/configuration.md` - Config options
-- `docs/github-actions.md` - GitHub specifics
-
----
-## Reporting Bugs
-
-### Bug Report Template
-
-```markdown
-**Describe the bug**
-A clear description of what the bug is.
-
-**To Reproduce**
-Steps to reproduce:
-1. Run command '...'
-2. See error '...'
-
-**Expected behavior**
-What you expected to happen.
-
-**Actual behavior**
-What actually happened.
-
-**Environment**
-- OS: [e.g., Ubuntu 22.04]
-- Go version: [e.g., 1.21.5]
-- Uniflow version: [e.g., 1.0.0]
-
-**Additional context**
-Any other information about the problem.
-```
-
----
-## Requesting Features
-
-### Feature Request Template
-
-```markdown
-**Is your feature request related to a problem?**
-Description of the problem.
-
-**Describe the solution you'd like**
-Clear description of what you want to happen.
-
-**Describe alternatives you've considered**
-Other solutions you've thought about.
-
-**Additional context**
-Any other context, mockups, or examples.
 ```
 
 ---
