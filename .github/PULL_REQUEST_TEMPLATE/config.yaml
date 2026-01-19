@@ -1,0 +1,26 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Contributing Guide
+    url: https://github.com/ignorant05/Uniflow/blob/main/CONTRIBUTING.md
+    about: Please read before submitting PR
+
+templates:
+  - name: Bug Fix
+    description: Fixes a bug or an issue
+    filename: .github/PULL_REQUEST_TEMPLATE/bug_fix.md
+    title: "Fix: "
+
+  - name: Feature
+    description: Submit a feature or an enhancement
+    filename: .github/PULL_REQUEST_TEMPLATE/feature.md
+    title: "Feat: "
+
+  - name: Documentation Update
+    description: Update or improve documentation
+    filename: .github/PULL_REQUEST_TEMPLATE/documentation.md
+    title: "Doc: "
+
+  - name: Custom Pull Request
+    description: custom pull request
+    filename: .github/PULL_REQUEST_TEMPLATE/custom_pull_request.md
+    title: "a custom title here"
