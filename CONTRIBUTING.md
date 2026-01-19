@@ -267,12 +267,7 @@ Uniflow/
 │   │   ├── config.yaml
 │   │   ├── custom_issue.md
 │   │   └── feature_request.md
-│   ├── PULL_REQUEST_TEMPLATE   # PR templates
-│   │   ├── bug_fix.md
-│   │   ├── config.yaml
-│   │   ├── custom_pull_request.md
-│   │   ├── documentation.md
-│   │   └── feature.md
+│   ├── custom_pull_request.md   # PR template
 │   └── workflows
 │       └── ci.yaml   # Continuous integration workflow file
 │       └── ghcr.yaml # Build and push to GHCR 
